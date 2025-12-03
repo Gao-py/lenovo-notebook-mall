@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联想笔记本商城</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>联想笔记本商城</h1>
+            <nav>
+                <a href="index.html">首页</a>
+                <a href="cart.html">购物车</a>
+                <a href="admin.html">管理后台</a>
+                <div id="userNav"></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="auth-modal" id="authModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="loginForm">
+                <h2>登录</h2>
+                <input type="text" id="loginUsername" placeholder="用户名">
+                <input type="password" id="loginPassword" placeholder="密码">
+                <button onclick="login()">登录</button>
+                <p>还没有账号? <a href="#" onclick="showRegister()">立即注册</a></p>
+                <p><a href="#" onclick="showResetPassword()">忘记密码?</a></p>
+            </div>
+            <div id="registerForm" class="hidden">
+                <h2>注册</h2>
+                <input type="text" id="regUsername" placeholder="用户名">
+                <input type="password" id="regPassword" placeholder="密码">
+                <input type="email" id="regEmail" placeholder="邮箱">
+                <input type="text" id="regPhone" placeholder="手机号">
+                <button onclick="register()">注册</button>
+                <p>已有账号? <a href="#" onclick="showLogin()">立即登录</a></p>
+            </div>
+            <div id="resetForm" class="hidden">
+                <h2>找回密码</h2>
+                <input type="email" id="resetEmail" placeholder="注册邮箱">
+                <input type="password" id="newPassword" placeholder="新密码">
+                <button onclick="resetPassword()">重置密码</button>
+                <p><a href="#" onclick="showLogin()">返回登录</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchModel" placeholder="搜索型号">
+            <button onclick="searchProducts()">搜索</button>
+            <input type="number" id="minPrice" placeholder="最低价格">
+            <input type="number" id="maxPrice" placeholder="最高价格">
+            <button onclick="searchByPrice()">价格筛选</button>
+            <button onclick="loadProducts()">全部商品</button>
+        </div>
+
+        <div class="product-list" id="productList"></div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 联想笔记本商城. All rights reserved.</p>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

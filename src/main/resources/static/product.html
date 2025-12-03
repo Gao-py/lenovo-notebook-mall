@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详情 - 联想笔记本商城</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>联想笔记本商城</h1>
+            <nav>
+                <a href="index.html">首页</a>
+                <a href="cart.html">购物车</a>
+                <a href="admin.html">管理后台</a>
+                <div id="userNav"></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="product-detail" id="productDetail">
+            <div class="product-image">
+                <img id="productImg" src="" alt="">
+            </div>
+            <div class="product-info">
+                <h2 id="productName"></h2>
+                <p class="model" id="productModel"></p>
+                <div class="price" id="productPrice"></div>
+                <div class="specs">
+                    <h3>产品规格</h3>
+                    <p><strong>处理器:</strong> <span id="cpu"></span></p>
+                    <p><strong>内存:</strong> <span id="memory"></span></p>
+                    <p><strong>存储:</strong> <span id="storage"></span></p>
+                    <p><strong>显示屏:</strong> <span id="display"></span></p>
+                    <p><strong>显卡:</strong> <span id="graphics"></span></p>
+                </div>
+                <div class="description">
+                    <h3>商品描述</h3>
+                    <p id="description"></p>
+                </div>
+                <div class="stock">库存: <span id="stock"></span></div>
+                <div class="sales">销量: <span id="sales"></span></div>
+                <div class="actions">
+                    <input type="number" id="quantity" value="1" min="1">
+                    <button onclick="addToCart()">加入购物车</button>
+                    <button class="buy-now" onclick="buyNow()">立即购买</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 联想笔记本商城. All rights reserved.</p>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/product.js"></script>
+</body>
+</html>

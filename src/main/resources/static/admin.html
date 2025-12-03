@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 联想笔记本商城</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>联想笔记本商城 - 管理后台</h1>
+            <nav>
+                <a href="index.html">返回首页</a>
+                <div id="userNav"></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="admin-panel">
+            <div class="admin-sidebar">
+                <ul>
+                    <li><a href="#" onclick="showSection('products')">商品管理</a></li>
+                    <li><a href="#" onclick="showSection('users')">用户管理</a></li>
+                    <li><a href="#" onclick="showSection('promotions')">促销管理</a></li>
+                </ul>
+            </div>
+            <div class="admin-content">
+                <div id="productsSection">
+                    <h2>商品管理</h2>
+                    <button onclick="showAddProduct()">添加商品</button>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>型号</th>
+                                <th>名称</th>
+                                <th>价格</th>
+                                <th>库存</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsList"></tbody>
+                    </table>
+                </div>
+
+                <div id="usersSection" class="hidden">
+                    <h2>用户管理</h2>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>手机</th>
+                                <th>会员</th>
+                                <th>注册时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersList"></tbody>
+                    </table>
+                </div>
+
+                <div id="promotionsSection" class="hidden">
+                    <h2>促销管理</h2>
+                    <button onclick="showAddPromotion()">添加促销</button>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名称</th>
+                                <th>折扣</th>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promotionsList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProductModal()">&times;</span>
+            <h2 id="productModalTitle">添加商品</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <input type="text" id="model" placeholder="型号" required>
+                <input type="text" id="name" placeholder="名称" required>
+                <input type="number" id="price" placeholder="价格" step="0.01" required>
+                <input type="text" id="cpu" placeholder="处理器">
+                <input type="text" id="memory" placeholder="内存">
+                <input type="text" id="storage" placeholder="存储">
+                <input type="text" id="display" placeholder="显示屏">
+                <input type="text" id="graphics" placeholder="显卡">
+                <textarea id="description" placeholder="描述"></textarea>
+                <input type="text" id="imageUrl" placeholder="图片URL">
+                <input type="number" id="stock" placeholder="库存" required>
+                <button type="submit">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 联想笔记本商城. All rights reserved.</p>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
