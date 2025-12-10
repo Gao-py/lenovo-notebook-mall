@@ -1,5 +1,4 @@
-if (!token) {
-    alert('请先登录');
+if (!requireAuth()) {
     location.href = 'index.html';
 }
 

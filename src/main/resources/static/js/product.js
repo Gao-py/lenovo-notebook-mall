@@ -26,11 +26,7 @@ async function loadProduct() {
 }
 
 async function addToCart() {
-    if (!token) {
-        alert('请先登录');
-        openModal();
-        return;
-    }
+    if (!requireAuth()) return;
     
     const quantity = document.getElementById('quantity').value;
     const res = await fetch(`/api/cart/add?productId=${productId}&quantity=${quantity}`, {
@@ -47,11 +43,7 @@ async function addToCart() {
 }
 
 function buyNow() {
-    if (!token) {
-        alert('请先登录');
-        openModal();
-        return;
-    }
+    if (!requireAuth()) return;
     addToCart().then(() => {
         location.href = 'cart.html';
     });

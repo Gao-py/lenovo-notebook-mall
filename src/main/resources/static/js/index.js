@@ -44,11 +44,7 @@ function goToProduct(id) {
 }
 
 async function addToCartQuick(productId) {
-    if (!token) {
-        alert('请先登录');
-        openModal();
-        return;
-    }
+    if (!requireAuth()) return;
 
     const res = await fetch(`/api/cart/add?productId=${productId}&quantity=1`, {
         method: 'POST',

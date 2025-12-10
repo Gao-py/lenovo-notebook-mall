@@ -22,10 +22,10 @@ public class UserController {
     }
     
     @PostMapping("/login")
-    public ApiResponse<String> login(@RequestBody LoginRequest request) {
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
         try {
-            String token = userService.login(request);
-            return ApiResponse.success(token);
+            LoginResponse response = userService.login(request);
+            return ApiResponse.success(response);
         } catch (Exception e) {
             return ApiResponse.error(e.getMessage());
         }

@@ -26,6 +26,10 @@
                 <h2>登录</h2>
                 <input type="text" id="loginUsername" placeholder="用户名">
                 <input type="password" id="loginPassword" placeholder="密码">
+                <div class="captcha-box">
+                    <input type="text" id="loginCaptcha" placeholder="验证码" style="width: 60%;">
+                    <img id="loginCaptchaImg" src="" alt="验证码" onclick="refreshLoginCaptcha()" style="width: 35%; height: 40px; cursor: pointer; border-radius: 5px;">
+                </div>
                 <button onclick="login()">登录</button>
                 <p>还没有账号? <a href="#" onclick="showRegister()">立即注册</a></p>
                 <p><a href="#" onclick="showResetPassword()">忘记密码?</a></p>
@@ -36,6 +40,10 @@
                 <input type="password" id="regPassword" placeholder="密码">
                 <input type="email" id="regEmail" placeholder="邮箱">
                 <input type="text" id="regPhone" placeholder="手机号">
+                <div class="captcha-box">
+                    <input type="text" id="regCaptcha" placeholder="验证码" style="width: 60%;">
+                    <img id="regCaptchaImg" src="" alt="验证码" onclick="refreshRegCaptcha()" style="width: 35%; height: 40px; cursor: pointer; border-radius: 5px;">
+                </div>
                 <button onclick="register()">注册</button>
                 <p>已有账号? <a href="#" onclick="showLogin()">立即登录</a></p>
             </div>

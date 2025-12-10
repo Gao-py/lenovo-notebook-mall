@@ -1,11 +1,15 @@
 let token = localStorage.getItem('token');
 let currentUser = localStorage.getItem('username');
+let userRole = localStorage.getItem('userRole');
+let loginCaptchaKey = '';
+let regCaptchaKey = '';
 
 function checkAuth() {
     const userNav = document.getElementById('userNav');
     if (token && currentUser) {
+        let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
         userNav.innerHTML = `
-            <span style="color: white;">欢迎, ${currentUser}</span>
+            <span style="color: white;">欢迎, ${currentUser} ${roleText}</span>
             <a href="#" onclick="logout()">退出</a>
         `;
     } else {
@@ -13,8 +17,17 @@ function checkAuth() {
     }
 }
 
-function openModal() {
+function requireAuth() {
+    if (!token) {
+        openModal();
+        return false;
+    }
+    return true;
+}
+
+async function openModal() {
     document.getElementById('authModal').classList.add('show');
+    await refreshLoginCaptcha();
 }
 
 function closeModal() {
@@ -25,12 +38,14 @@ function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
     document.getElementById('registerForm').classList.add('hidden');
     document.getElementById('resetForm').classList.add('hidden');
+    refreshLoginCaptcha();
 }
 
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
     document.getElementById('resetForm').classList.add('hidden');
+    refreshRegCaptcha();
 }
 
 function showResetPassword() {
@@ -39,26 +54,58 @@ function showResetPassword() {
     document.getElementById('resetForm').classList.remove('hidden');
 }
 
+async function refreshLoginCaptcha() {
+    const res = await fetch('/api/captcha/generate');
+    const data = await res.json();
+    if (data.success) {
+        loginCaptchaKey = data.data.key;
+        document.getElementById('loginCaptchaImg').src = data.data.image;
+    }
+}
+
+async function refreshRegCaptcha() {
+    const res = await fetch('/api/captcha/generate');
+    const data = await res.json();
+    if (data.success) {
+        regCaptchaKey = data.data.key;
+        document.getElementById('regCaptchaImg').src = data.data.image;
+    }
+}
+
 async function login() {
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
-    
+    const captchaCode = document.getElementById('loginCaptcha').value;
+
+    if (!captchaCode) {
+        alert('请输入验证码');
+        return;
+    }
+
     const res = await fetch('/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({
+            username,
+            password,
+            captchaKey: loginCaptchaKey,
+            captchaCode
+        })
     });
     
     const data = await res.json();
     if (data.success) {
-        token = data.data;
+        token = data.data.token;
+        userRole = data.data.role;
         localStorage.setItem('token', token);
         localStorage.setItem('username', username);
+        localStorage.setItem('userRole', userRole);
         alert('登录成功');
         closeModal();
         location.reload();
     } else {
         alert(data.message);
+        refreshLoginCaptcha();
     }
 }
 
@@ -67,11 +114,24 @@ async function register() {
     const password = document.getElementById('regPassword').value;
     const email = document.getElementById('regEmail').value;
     const phone = document.getElementById('regPhone').value;
-    
+    const captchaCode = document.getElementById('regCaptcha').value;
+
+    if (!captchaCode) {
+        alert('请输入验证码');
+        return;
+    }
+
     const res = await fetch('/api/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, email, phone })
+        body: JSON.stringify({
+            username,
+            password,
+            email,
+            phone,
+            captchaKey: regCaptchaKey,
+            captchaCode
+        })
     });
     
     const data = await res.json();
@@ -80,6 +140,7 @@ async function register() {
         showLogin();
     } else {
         alert(data.message);
+        refreshRegCaptcha();
     }
 }
 
@@ -103,6 +164,7 @@ async function resetPassword() {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
     location.href = 'index.html';
 }
 

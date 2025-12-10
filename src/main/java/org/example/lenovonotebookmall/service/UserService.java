@@ -1,7 +1,9 @@
 package org.example.lenovonotebookmall.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.lenovonotebookmall.controller.CaptchaController;
 import org.example.lenovonotebookmall.dto.LoginRequest;
+import org.example.lenovonotebookmall.dto.LoginResponse;
 import org.example.lenovonotebookmall.dto.RegisterRequest;
 import org.example.lenovonotebookmall.entity.User;
 import org.example.lenovonotebookmall.repository.UserRepository;
@@ -17,6 +19,10 @@ public class UserService {
     private final JwtUtil jwtUtil;
     
     public String register(RegisterRequest request) {
+        if (!CaptchaController.verify(request.getCaptchaKey(), request.getCaptchaCode())) {
+            throw new RuntimeException("验证码错误");
+        }
+
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("用户名已存在");
         }
@@ -34,7 +40,11 @@ public class UserService {
         return jwtUtil.generateToken(user.getUsername());
     }
     
-    public String login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
+        if (!CaptchaController.verify(request.getCaptchaKey(), request.getCaptchaCode())) {
+            throw new RuntimeException("验证码错误");
+        }
+
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
         
@@ -42,7 +52,8 @@ public class UserService {
             throw new RuntimeException("密码错误");
         }
         
-        return jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername());
+        return new LoginResponse(token, user.getRole().name());
     }
     
     public void resetPassword(String email, String newPassword) {

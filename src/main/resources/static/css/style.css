@@ -701,6 +701,26 @@ button {
     font-family: inherit;
 }
 
+.captcha-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.captcha-box input {
+    margin: 0 !important;
+}
+
+.captcha-box img {
+    border: 2px solid #e0e0e0;
+    transition: border-color 0.3s;
+}
+
+.captcha-box img:hover {
+    border-color: #e60012;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .product-detail {
