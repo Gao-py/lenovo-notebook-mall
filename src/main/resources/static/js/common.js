@@ -6,14 +6,28 @@ let regCaptchaKey = '';
 
 function checkAuth() {
     const userNav = document.getElementById('userNav');
+    const cartLink = document.querySelector('a[href="cart.html"]');
+    const adminLink = document.querySelector('a[href="admin.html"]');
+
     if (token && currentUser) {
         let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
         userNav.innerHTML = `
             <span style="color: white;">欢迎, ${currentUser} ${roleText}</span>
             <a href="#" onclick="logout()">退出</a>
         `;
+
+        // Hide cart for admin, hide admin panel for regular users
+        if (userRole === 'ADMIN') {
+            if (cartLink) cartLink.style.display = 'none';
+            if (adminLink) adminLink.style.display = 'inline-block';
+        } else {
+            if (cartLink) cartLink.style.display = 'inline-block';
+            if (adminLink) adminLink.style.display = 'none';
+        }
     } else {
         userNav.innerHTML = `<a href="#" onclick="openModal()">登录/注册</a>`;
+        if (cartLink) cartLink.style.display = 'inline-block';
+        if (adminLink) adminLink.style.display = 'none';
     }
 }
 
