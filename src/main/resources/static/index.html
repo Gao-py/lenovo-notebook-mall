@@ -58,13 +58,54 @@
     </div>
 
     <div class="container">
+        <div class="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="carousel-content">
+                        <h2>ThinkPad 系列</h2>
+                        <p>商务精英的首选，稳定可靠</p>
+                        <button class="carousel-btn" onclick="filterByCategory('ThinkPad')">立即选购</button>
+                    </div>
+                </div>
+                <div class="carousel-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="carousel-content">
+                        <h2>YOGA 系列</h2>
+                        <p>灵活多变，创意无限</p>
+                        <button class="carousel-btn" onclick="filterByCategory('YOGA')">立即选购</button>
+                    </div>
+                </div>
+                <div class="carousel-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="carousel-content">
+                        <h2>拯救者系列</h2>
+                        <p>游戏利器，性能强劲</p>
+                        <button class="carousel-btn" onclick="filterByCategory('拯救者')">立即选购</button>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-arrow prev" onclick="prevSlide()">‹</button>
+            <button class="carousel-arrow next" onclick="nextSlide()">›</button>
+            <div class="carousel-controls">
+                <span class="carousel-dot active" onclick="goToSlide(0)"></span>
+                <span class="carousel-dot" onclick="goToSlide(1)"></span>
+                <span class="carousel-dot" onclick="goToSlide(2)"></span>
+            </div>
+        </div>
+
+        <div class="category-filter">
+            <span>分类筛选:</span>
+            <button class="category-btn active" onclick="filterByCategory('all')">全部</button>
+            <button class="category-btn" onclick="filterByCategory('ThinkPad')">ThinkPad</button>
+            <button class="category-btn" onclick="filterByCategory('YOGA')">YOGA</button>
+            <button class="category-btn" onclick="filterByCategory('拯救者')">拯救者</button>
+            <button class="category-btn" onclick="filterByCategory('小新')">小新</button>
+        </div>
+
         <div class="search-bar">
-            <input type="text" id="searchModel" placeholder="搜索型号">
+            <input type="text" id="searchModel" placeholder="搜索型号或名称">
             <button onclick="searchProducts()">搜索</button>
             <input type="number" id="minPrice" placeholder="最低价格">
             <input type="number" id="maxPrice" placeholder="最高价格">
             <button onclick="searchByPrice()">价格筛选</button>
-            <button onclick="loadProducts()">全部商品</button>
         </div>
 
         <div class="product-list" id="productList"></div>

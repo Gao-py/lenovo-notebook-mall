@@ -16,7 +16,6 @@ function checkAuth() {
             <a href="#" onclick="logout()">退出</a>
         `;
 
-        // Hide cart for admin, hide admin panel for regular users
         if (userRole === 'ADMIN') {
             if (cartLink) cartLink.style.display = 'none';
             if (adminLink) adminLink.style.display = 'inline-block';
@@ -40,8 +39,8 @@ function requireAuth() {
 }
 
 async function openModal() {
+    showLogin();
     document.getElementById('authModal').classList.add('show');
-    await refreshLoginCaptcha();
 }
 
 function closeModal() {
