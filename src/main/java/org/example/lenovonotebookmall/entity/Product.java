@@ -21,6 +21,8 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
     
+    private String category;
+
     private String cpu;
     private String memory;
     private String storage;
@@ -30,7 +32,9 @@ public class Product {
     @Column(length = 1000)
     private String description;
     
+    @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
+
     private Integer stock = 0;
     private Integer sales = 0;
 }

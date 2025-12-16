@@ -15,8 +15,12 @@ public class ProductController {
     private final ProductService productService;
     
     @GetMapping
-    public ApiResponse<List<Product>> getAllProducts() {
-        return ApiResponse.success(productService.getAllProducts());
+    public ApiResponse<List<Product>> getAllProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String sortBy) {
+        return ApiResponse.success(productService.searchProducts(category, minPrice, maxPrice, sortBy));
     }
     
     @GetMapping("/{id}")
@@ -36,5 +40,10 @@ public class ProductController {
     @GetMapping("/price-range")
     public ApiResponse<List<Product>> searchByPrice(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
         return ApiResponse.success(productService.searchByPriceRange(min, max));
+    }
+
+    @GetMapping("/category/{category}")
+    public ApiResponse<List<Product>> getByCategory(@PathVariable String category) {
+        return ApiResponse.success(productService.searchByCategory(category));
     }
 }

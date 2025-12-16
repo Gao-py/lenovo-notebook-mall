@@ -105,7 +105,14 @@
             <button onclick="searchProducts()">搜索</button>
             <input type="number" id="minPrice" placeholder="最低价格">
             <input type="number" id="maxPrice" placeholder="最高价格">
-            <button onclick="searchByPrice()">价格筛选</button>
+            <select id="sortBy" style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <option value="">默认排序</option>
+                <option value="price_asc">价格从低到高</option>
+                <option value="price_desc">价格从高到低</option>
+                <option value="sales_desc">销量从高到低</option>
+                <option value="name_asc">名称A-Z</option>
+            </select>
+            <button onclick="applyFilters()">应用筛选</button>
         </div>
 
         <div class="product-list" id="productList"></div>
