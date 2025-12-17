@@ -3,6 +3,7 @@ let currentUser = localStorage.getItem('username');
 let userRole = localStorage.getItem('userRole');
 let loginCaptchaKey = '';
 let regCaptchaKey = '';
+let countdown = 0;
 
 function checkAuth() {
     const userNav = document.getElementById('userNav');
@@ -85,6 +86,48 @@ async function refreshRegCaptcha() {
     }
 }
 
+async function sendVerificationCode() {
+    const email = document.getElementById('regEmail').value;
+    if (!email) {
+        alert('请输入邮箱');
+        return;
+    }
+
+    if (countdown > 0) {
+        alert('请稍后再试');
+        return;
+    }
+
+    const btn = document.getElementById('sendCodeBtn');
+    btn.disabled = true;
+
+    const res = await fetch(`/api/users/send-code?email=${encodeURIComponent(email)}`, {
+        method: 'POST'
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        alert('验证码已发送到您的邮箱');
+        countdown = 60;
+        updateCountdown();
+    } else {
+        alert(data.message);
+        btn.disabled = false;
+    }
+}
+
+function updateCountdown() {
+    const btn = document.getElementById('sendCodeBtn');
+    if (countdown > 0) {
+        btn.textContent = `${countdown}秒后重试`;
+        countdown--;
+        setTimeout(updateCountdown, 1000);
+    } else {
+        btn.textContent = '发送验证码';
+        btn.disabled = false;
+    }
+}
+
 async function login() {
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
@@ -127,14 +170,14 @@ async function register() {
     const password = document.getElementById('regPassword').value;
     const email = document.getElementById('regEmail').value;
     const phone = document.getElementById('regPhone').value;
-    const captchaCode = document.getElementById('regCaptcha').value;
+    const verificationCode = document.getElementById('regCode').value;
 
-    if (!captchaCode) {
-        alert('请输入验证码');
+    if (!verificationCode) {
+        alert('请输入邮箱验证码');
         return;
     }
 
-    const res = await fetch('/api/user/register', {
+    const res = await fetch('/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -142,18 +185,15 @@ async function register() {
             password,
             email,
             phone,
-            captchaKey: regCaptchaKey,
-            captchaCode
+            verificationCode
         })
     });
     
     const data = await res.json();
+    alert(data.message || (data.success ? '注册成功' : '注册失败'));
     if (data.success) {
-        alert('注册成功,请登录');
+        closeModal();
         showLogin();
-    } else {
-        alert(data.message);
-        refreshRegCaptcha();
     }
 }
 

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 @Data
 public class UserProfileRequest {
+    private String email;
     private String nickname;
     private String avatar;
     private LocalDate birthday;
