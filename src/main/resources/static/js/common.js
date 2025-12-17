@@ -12,7 +12,7 @@ function checkAuth() {
     if (token && currentUser) {
         let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
         userNav.innerHTML = `
-            <span style="color: white;">欢迎, ${currentUser} ${roleText}</span>
+            <a href="profile.html" style="color: white;">欢迎, ${currentUser} ${roleText}</a>
             <a href="#" onclick="logout()">退出</a>
         `;
 

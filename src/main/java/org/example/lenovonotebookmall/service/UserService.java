@@ -5,6 +5,7 @@ import org.example.lenovonotebookmall.controller.CaptchaController;
 import org.example.lenovonotebookmall.dto.LoginRequest;
 import org.example.lenovonotebookmall.dto.LoginResponse;
 import org.example.lenovonotebookmall.dto.RegisterRequest;
+import org.example.lenovonotebookmall.dto.UserProfileRequest;
 import org.example.lenovonotebookmall.entity.User;
 import org.example.lenovonotebookmall.repository.UserRepository;
 import org.example.lenovonotebookmall.util.JwtUtil;
@@ -35,6 +36,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
+        user.setNickname(request.getUsername());
         userRepository.save(user);
         
         return jwtUtil.generateToken(user.getUsername());
@@ -61,5 +63,25 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("邮箱未注册"));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    public User getUserProfile(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+    }
+
+    public User updateUserProfile(String username, UserProfileRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+
+        if (request.getNickname() != null) user.setNickname(request.getNickname());
+        if (request.getAvatar() != null) user.setAvatar(request.getAvatar());
+        if (request.getBirthday() != null) user.setBirthday(request.getBirthday());
+        if (request.getGender() != null) user.setGender(request.getGender());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
+        if (request.getAddress() != null) user.setAddress(request.getAddress());
+        if (request.getSignature() != null) user.setSignature(request.getSignature());
+
+        return userRepository.save(user);
     }
 }
