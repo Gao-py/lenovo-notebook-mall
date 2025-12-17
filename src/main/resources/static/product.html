@@ -49,6 +49,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- 评论区域 -->
+        <div class="comments-section">
+            <h3>商品评价</h3>
+            <div class="comment-form">
+                <textarea id="commentContent" placeholder="写下你的评价..." rows="3"></textarea>
+                <button onclick="submitComment()">发表评论</button>
+            </div>
+            <div class="comments-list" id="commentsList"></div>
+        </div>
     </div>
 
     <footer class="footer">
@@ -56,6 +66,7 @@
     </footer>
 
     <script src="js/common.js"></script>
+    <script src="js/comments.js"></script>
     <script src="js/product.js"></script>
 </body>
 </html>

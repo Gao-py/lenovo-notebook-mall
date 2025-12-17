@@ -1081,3 +1081,107 @@ button {
     padding: 14px 40px;
     font-size: 16px;
 }
+
+/* 评论区样式 */
+.comments-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+}
+
+.comment-form {
+    margin-bottom: 30px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    resize: vertical;
+    font-size: 14px;
+}
+
+.comment-form button {
+    margin-top: 10px;
+    padding: 10px 24px;
+    background: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.comment-item {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.comment-user {
+    font-weight: bold;
+    color: #333;
+}
+
+.comment-time {
+    color: #999;
+    font-size: 12px;
+}
+
+.comment-content {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.comment-actions a {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.reply-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+}
+
+.reply-box textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.reply-box button {
+    padding: 8px 16px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.reply-box button:first-of-type {
+    background: #0066cc;
+    color: white;
+}
+
+.replies {
+    margin-top: 15px;
+    padding-left: 30px;
+}
+
+.reply-item {
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}

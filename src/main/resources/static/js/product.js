@@ -23,6 +23,8 @@ async function loadProduct() {
         alert('商品不存在');
         location.href = 'index.html';
     }
+
+    loadComments(productId);
 }
 
 async function addToCart() {

@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/api/user/register", "/api/user/login", "/api/user/reset-password").permitAll()
                 .requestMatchers("/api/captcha/**").permitAll()
+                .requestMatchers("/api/comments/**").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
