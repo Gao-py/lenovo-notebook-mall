@@ -54,11 +54,19 @@ body {
     border-radius: 20px;
     transition: all 0.3s;
     font-size: 14px;
+    display: flex;
+    align-items: center;
 }
 
 .header nav a:hover {
     background: rgba(255,255,255,0.2);
     transform: translateY(-2px);
+}
+
+#userNav {
+    display: flex;
+    gap: 15px;
+    align-items: center;
 }
 
 /* Carousel */
@@ -1113,9 +1121,14 @@ button {
     cursor: pointer;
 }
 
+.comment-item:hover {
+    background: #f9f9f9;
+}
+
 .comment-item {
-    padding: 20px;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 15px;
+    border-left: 2px solid #e0e0e0;
+    margin-bottom: 10px;
 }
 
 .comment-header {
@@ -1184,4 +1197,122 @@ button {
     background: #f9f9f9;
     border-radius: 6px;
     margin-bottom: 10px;
+}
+
+.orders-container {
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.order-item {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.order-status {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-paid {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-shipped {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.order-details {
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 15px;
+}
+
+.order-details p {
+    margin: 8px 0;
+    color: #666;
+}
+
+.order-items {
+    margin: 15px 0;
+}
+
+.order-product {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.order-product img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.order-product .product-info {
+    flex: 1;
+}
+
+.order-product h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.order-product p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.order-product .price {
+    color: #e4393c;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.order-footer {
+    text-align: right;
+    padding-top: 15px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.total-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e4393c;
 }

@@ -52,11 +52,29 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
+        if (request.getNickname() != null) {
+            user.setNickname(request.getNickname());
+        }
+        if (request.getAvatar() != null) {
+            user.setAvatar(request.getAvatar());
+        }
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
         }
         if (request.getPhone() != null) {
             user.setPhone(request.getPhone());
+        }
+        if (request.getGender() != null) {
+            user.setGender(request.getGender());
+        }
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getSignature() != null) {
+            user.setSignature(request.getSignature());
         }
 
         return userRepository.save(user);
