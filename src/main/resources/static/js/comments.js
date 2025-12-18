@@ -3,13 +3,13 @@ let currentProductId = null;
 // 加载评论列表
 async function loadComments(productId) {
     currentProductId = productId;
-    console.log('开始加载评论，商品ID:', productId); // 调试信息
+    console.log('开始加载评论，商品ID:', productId);
 
     try {
         const response = await fetch(`/api/comments/product/${productId}`);
         const result = await response.json();
         
-        console.log('评论数据:', result); // 调试信息
+        console.log('评论数据:', result);
 
         if (result.success) {
             displayComments(result.data);
@@ -21,11 +21,11 @@ async function loadComments(productId) {
     }
 }
 
-// 显示评论
+// 显示评论（递归显示所有层级）
 function displayComments(comments) {
     const commentsList = document.getElementById('commentsList');
 
-    console.log('显示评论，数量:', comments ? comments.length : 0); // 调试信息
+    console.log('显示评论，数量:', comments ? comments.length : 0);
 
     if (!comments || comments.length === 0) {
         commentsList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">暂无评价</p>';
@@ -33,44 +33,32 @@ function displayComments(comments) {
     }
 
     const topComments = comments.filter(c => !c.parentId);
-    const replies = comments.filter(c => c.parentId);
+    commentsList.innerHTML = topComments.map(comment => renderComment(comment, comments, 0)).join('');
+}
 
-    let html = '';
-    topComments.forEach(comment => {
-        const commentReplies = replies.filter(r => r.parentId === comment.id);
-        html += `
-            <div class="comment-item">
-                <div class="comment-header">
-                    <span class="comment-user">${comment.username || '匿名用户'}</span>
-                    <span class="comment-time">${formatTime(comment.createTime)}</span>
-                </div>
-                <div class="comment-content">${comment.content}</div>
-                <div class="comment-actions">
-                    <a href="javascript:void(0)" onclick="showReplyBox(${comment.id})">回复</a>
-                </div>
-                <div class="reply-box" id="replyBox${comment.id}" style="display: none;">
-                    <textarea id="replyContent${comment.id}" placeholder="写下你的回复..." rows="2"></textarea>
-                    <button onclick="submitReply(${comment.id})">发表回复</button>
-                    <button onclick="cancelReply(${comment.id})">取消</button>
-                </div>
-                ${commentReplies.length > 0 ? `
-                    <div class="replies">
-                        ${commentReplies.map(reply => `
-                            <div class="reply-item">
-                                <div class="comment-header">
-                                    <span class="comment-user">${reply.username || '匿名用户'}</span>
-                                    <span class="comment-time">${formatTime(reply.createTime)}</span>
-                                </div>
-                                <div class="comment-content">${reply.content}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
+// 递归渲染评论及其所有回复
+function renderComment(comment, allComments, level) {
+    const replies = allComments.filter(c => c.parentId === comment.id);
+    const indent = level * 30;
+
+    return `
+        <div class="comment-item" style="margin-left: ${indent}px;">
+            <div class="comment-header">
+                <span class="comment-user">${comment.username || '匿名用户'}</span>
+                <span class="comment-time">${formatTime(comment.createTime)}</span>
             </div>
-        `;
-    });
-
-    commentsList.innerHTML = html;
+            <div class="comment-content">${comment.content}</div>
+            <div class="comment-actions">
+                <a href="javascript:void(0)" onclick="showReplyBox(${comment.id})">回复</a>
+            </div>
+            <div class="reply-box" id="replyBox${comment.id}" style="display: none;">
+                <textarea id="replyContent${comment.id}" placeholder="写下你的回复..." rows="2"></textarea>
+                <button onclick="submitReply(${comment.id})">发表回复</button>
+                <button onclick="cancelReply(${comment.id})">取消</button>
+            </div>
+        </div>
+        ${replies.map(reply => renderComment(reply, allComments, level + 1)).join('')}
+    `;
 }
 
 // 发表评论
