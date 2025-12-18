@@ -54,11 +54,19 @@ body {
     border-radius: 20px;
     transition: all 0.3s;
     font-size: 14px;
+    display: flex;
+    align-items: center;
 }
 
 .header nav a:hover {
     background: rgba(255,255,255,0.2);
     transform: translateY(-2px);
+}
+
+#userNav {
+    display: flex;
+    gap: 15px;
+    align-items: center;
 }
 
 /* Carousel */

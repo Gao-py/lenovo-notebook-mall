@@ -5,17 +5,35 @@ let loginCaptchaKey = '';
 let regCaptchaKey = '';
 let countdown = 0;
 
-function checkAuth() {
+async function checkAuth() {
     const userNav = document.getElementById('userNav');
     const cartLink = document.querySelector('a[href="cart.html"]');
     const adminLink = document.querySelector('a[href="admin.html"]');
 
     if (token && currentUser) {
-        let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
-        userNav.innerHTML = `
-            <a href="profile.html" style="color: white;">欢迎, ${currentUser} ${roleText}</a>
-            <a href="#" onclick="logout()">退出</a>
-        `;
+        try {
+            const res = await fetch('/api/profile', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const user = data.data;
+                const displayName = user.nickname || user.username;
+                const avatarUrl = user.avatar || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="16" fill="%23ddd"/%3E%3Ccircle cx="16" cy="12" r="5" fill="%23999"/%3E%3Cpath d="M6 28c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="%23999"/%3E%3C/svg%3E';
+                let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
+
+                userNav.innerHTML = `
+                    <a href="profile.html" style="color: white; display: flex; align-items: center; gap: 8px;">
+                        <img src="${avatarUrl}" alt="头像" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;">
+                        <span>欢迎, ${displayName} ${roleText}</span>
+                    </a>
+                    <a href="#" onclick="logout()">退出</a>
+                `;
+            }
+        } catch (e) {
+            console.error('获取用户信息失败', e);
+        }
 
         if (userRole === 'ADMIN') {
             if (cartLink) cartLink.style.display = 'none';
