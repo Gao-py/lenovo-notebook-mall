@@ -73,6 +73,10 @@ public class ProductService {
         };
     }
 
+    public List<Product> getProductsByExactModel(String model) {
+        return productRepository.findByModel(model);
+    }
+
     public Product saveProduct(Product product) {
         return productRepository.save(product);
     }

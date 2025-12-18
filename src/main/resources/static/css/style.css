@@ -475,6 +475,60 @@ body {
     box-shadow: 0 4px 15px rgba(230,0,18,0.3);
 }
 
+/* 配置选择器样式 */
+.config-selector {
+    margin: 25px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.config-selector h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+.config-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.config-option {
+    padding: 10px 15px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.config-option:hover {
+    border-color: #e60012;
+}
+
+.config-option.active {
+    background: #e60012;
+    color: white;
+    border-color: #e60012;
+}
+
+.config-option .config-name {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.config-option .config-price {
+    font-size: 16px;
+    color: #e60012;
+}
+
+.config-option.active .config-price {
+    color: white;
+}
+
 /* Cart */
 .container > h2 {
     color: #333;

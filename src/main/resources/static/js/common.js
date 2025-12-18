@@ -5,6 +5,12 @@ let loginCaptchaKey = '';
 let regCaptchaKey = '';
 let countdown = 0;
 
+function goToCart() {
+    if (requireAuth()) {
+        location.href = 'cart.html';
+    }
+}
+
 async function checkAuth() {
     const userNav = document.getElementById('userNav');
     const cartLink = document.querySelector('a[href="cart.html"]');

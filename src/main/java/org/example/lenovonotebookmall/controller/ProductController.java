@@ -46,4 +46,9 @@ public class ProductController {
     public ApiResponse<List<Product>> getByCategory(@PathVariable String category) {
         return ApiResponse.success(productService.searchByCategory(category));
     }
+
+    @GetMapping("/model/{model}")
+    public ApiResponse<List<Product>> getByExactModel(@PathVariable String model) {
+        return ApiResponse.success(productService.getProductsByExactModel(model));
+    }
 }
