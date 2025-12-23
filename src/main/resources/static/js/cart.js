@@ -86,8 +86,59 @@ async function clearCart() {
     loadCart();
 }
 
-function checkout() {
-    alert('结算功能开发中...');
+async function checkout() {
+    const res = await fetch('/api/addresses', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+
+    if (!data.success || !data.data || data.data.length === 0) {
+        if (confirm('您还没有收货地址，是否前往添加？')) {
+            location.href = 'address.html';
+        }
+        return;
+    }
+
+    const addresses = data.data;
+    const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>确认收货地址</h2>
+            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 15px 0;">
+                <div style="font-weight: bold; margin-bottom: 8px;">${defaultAddr.receiverName} ${defaultAddr.phone}</div>
+                <div style="color: #666;">${defaultAddr.address}</div>
+            </div>
+            <button onclick="confirmCheckout('${defaultAddr.receiverName}', '${defaultAddr.phone}', '${defaultAddr.address}')" class="btn-primary">确认下单</button>
+            <button onclick="location.href='address.html'" class="btn-secondary" style="margin-left: 10px;">更换地址</button>
+            <button onclick="this.closest('.modal').remove()" class="btn-secondary" style="margin-left: 10px;">取消</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function confirmCheckout(name, phone, address) {
+    const checkoutRes = await fetch('/api/orders/checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            address: `${name} ${phone} - ${address}`,
+            phone: phone
+        })
+    });
+
+    const checkoutData = await checkoutRes.json();
+    if (checkoutData.success) {
+        alert('订单创建成功！订单号: ' + checkoutData.data.id);
+        location.href = 'orders.html';
+    } else {
+        alert('结算失败: ' + checkoutData.message);
+    }
 }
 
 loadCart();

@@ -2,15 +2,13 @@ async function loadOrders() {
     const token = localStorage.getItem('token');
     if (!token) {
         alert('请先登录');
-        showModal();
+        location.href = 'index.html';
         return;
     }
 
     try {
         const response = await fetch('/api/orders/my', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         const result = await response.json();
         
@@ -33,31 +31,29 @@ function displayOrders(orders) {
         return;
     }
 
-    let html = '<div class="orders-container">';
-    orders.forEach(order => {
-        const statusText = {
-            'PENDING': '待支付',
-            'PAID': '已支付',
-            'SHIPPED': '已发货',
-            'COMPLETED': '已完成',
-            'CANCELLED': '已取消'
-        }[order.status] || order.status;
+    const statusMap = {
+        'PENDING': '待支付',
+        'PAID': '已支付',
+        'SHIPPED': '已发货',
+        'COMPLETED': '已完成',
+        'CANCELLED': '已取消'
+    };
 
-        html += `
+    ordersList.innerHTML = '<div class="orders-container">' +
+        orders.map(order => `
             <div class="order-item">
                 <div class="order-header">
                     <span>订单号: ${order.id}</span>
-                    <span class="order-status status-${order.status.toLowerCase()}">${statusText}</span>
+                    <span class="order-status status-${order.status.toLowerCase()}">${statusMap[order.status] || order.status}</span>
                 </div>
                 <div class="order-details">
-                    <p><strong>收货地址:</strong> ${order.shippingAddress || '未填写'}</p>
-                    <p><strong>联系电话:</strong> ${order.phone || '未填写'}</p>
+                    <p><strong>收货地址:</strong> ${order.address || '未填写'}</p>
                     <p><strong>下单时间:</strong> ${new Date(order.createTime).toLocaleString('zh-CN')}</p>
                 </div>
                 <div class="order-items">
-                    ${order.orderItems ? order.orderItems.map(item => `
+                    ${order.items && order.items.length > 0 ? order.items.map(item => `
                         <div class="order-product">
-                            <img src="${item.product?.imageUrl || 'images/default.jpg'}" alt="${item.product?.name || '商品'}">
+                            <img src="${item.product?.imageUrl || 'https://via.placeholder.com/100'}" alt="${item.product?.name || '商品'}">
                             <div class="product-info">
                                 <h4>${item.product?.name || '商品'}</h4>
                                 <p>数量: ${item.quantity}</p>
@@ -70,11 +66,8 @@ function displayOrders(orders) {
                     <span class="total-price">订单总额: ¥${order.totalAmount ? order.totalAmount.toFixed(2) : '0.00'}</span>
                 </div>
             </div>
-        `;
-    });
-    html += '</div>';
-    
-    ordersList.innerHTML = html;
+        `).join('') +
+    '</div>';
 }
 
 loadOrders();

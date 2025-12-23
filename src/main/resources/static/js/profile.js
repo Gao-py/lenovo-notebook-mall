@@ -17,15 +17,12 @@ async function loadProfile() {
         document.getElementById('phone').value = user.phone || '';
         document.getElementById('gender').value = user.gender || '';
         document.getElementById('birthday').value = user.birthday || '';
-        document.getElementById('address').value = user.address || '';
         
         if (user.avatar) {
             document.getElementById('previewImage').src = user.avatar;
             document.getElementById('previewImage').style.display = 'block';
             document.getElementById('uploadPrompt').style.display = 'none';
         }
-    } else {
-        alert(data.message);
     }
 }
 
@@ -105,7 +102,6 @@ document.getElementById('profileForm').addEventListener('submit', async function
         phone: document.getElementById('phone').value,
         gender: document.getElementById('gender').value,
         birthday: document.getElementById('birthday').value || null,
-        address: document.getElementById('address').value,
         signature: document.getElementById('signature').value
     };
     

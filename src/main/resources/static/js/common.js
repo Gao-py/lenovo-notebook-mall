@@ -26,7 +26,7 @@ async function checkAuth() {
             if (data.success) {
                 const user = data.data;
                 const displayName = user.nickname || user.username;
-                const avatarUrl = user.avatar || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="16" fill="%23ddd"/%3E%3Ccircle cx="16" cy="12" r="5" fill="%23999"/%3E%3Cpath d="M6 28c0-5.5 4.5-10 10-10s10 4.5 10 10" fill="%23999"/%3E%3C/svg%3E';
+                const avatarUrl = user.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22white%22/%3E%3C/svg%3E';
                 let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
 
                 userNav.innerHTML = `

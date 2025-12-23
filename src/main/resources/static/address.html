@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收货地址管理 - 联想笔记本商城</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>联想笔记本商城</h1>
+            <nav>
+                <a href="index.html">首页</a>
+                <a href="cart.html">购物车</a>
+                <a href="orders.html">我的订单</a>
+                <a href="profile.html">个人信息</a>
+                <div id="userNav"></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="product-edit-container">
+            <h2>收货地址管理</h2>
+            <button class="btn-primary" onclick="showAddAddressModal()" style="margin-bottom: 20px;">添加新地址</button>
+            <div id="addressList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="addressModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddressModal()">&times;</span>
+            <h2 id="addressModalTitle">添加收货地址</h2>
+            <form id="addressForm">
+                <input type="hidden" id="addressId">
+                <input type="text" id="receiverName" placeholder="收货人姓名" required>
+                <input type="text" id="addressPhone" placeholder="手机号" required>
+                <textarea id="addressDetail" placeholder="详细地址" rows="3" required></textarea>
+                <button type="submit" class="btn-primary">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 联想笔记本商城. All rights reserved.</p>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/address.js"></script>
+</body>
+</html>

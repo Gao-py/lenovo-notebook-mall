@@ -1,5 +1,6 @@
 package org.example.lenovonotebookmall.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ public class Order {
     private User user;
     
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<OrderItem> items;
     
     private BigDecimal totalAmount;

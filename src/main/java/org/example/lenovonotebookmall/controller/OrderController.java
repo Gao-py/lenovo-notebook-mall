@@ -1,5 +1,6 @@
 package org.example.lenovonotebookmall.controller;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.example.lenovonotebookmall.dto.ApiResponse;
 import org.example.lenovonotebookmall.entity.Order;
@@ -30,5 +31,21 @@ public class OrderController {
         } catch (Exception e) {
             return ApiResponse.error(e.getMessage());
         }
+    }
+
+    @PostMapping("/checkout")
+    public ApiResponse<Order> checkout(Authentication auth, @RequestBody CheckoutRequest request) {
+        try {
+            Order order = orderService.createOrder(auth.getName(), request.getAddress(), request.getPhone());
+            return ApiResponse.success(order);
+        } catch (Exception e) {
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    @Data
+    public static class CheckoutRequest {
+        private String address;
+        private String phone;
     }
 }
