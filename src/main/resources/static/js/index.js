@@ -75,9 +75,6 @@ function displayProducts(products) {
                 <p class="model">${p.model}${p.category ? ' | ' + p.category : ''}</p>
                 <div class="price">¥${p.price}</div>
                 <p class="stock">库存: ${p.stock} | 销量: ${p.sales || 0}</p>
-                <button onclick="event.stopPropagation(); ${admin ? `editProductFromIndex(${p.id})` : `addToCartQuick(${p.id})`}">
-                    ${admin ? '编辑商品' : '加入购物车'}
-                </button>
             </div>
         </div>
     `).join('');
@@ -89,16 +86,6 @@ function editProductFromIndex(id) {
 
 function goToProduct(id) {
     location.href = `product.html?id=${id}`;
-}
-
-async function addToCartQuick(productId) {
-    if (!requireAuth()) return;
-    const res = await fetch(`/api/cart/add?productId=${productId}&quantity=1`, {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await res.json();
-    alert(data.success ? '已加入购物车' : data.message);
 }
 
 function showSlide(n) {
