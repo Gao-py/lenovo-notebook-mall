@@ -2,6 +2,7 @@ package org.example.lenovonotebookmall.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -29,6 +30,9 @@ public class User {
     private UserRole role = UserRole.USER;
 
     private Boolean isVip = false;
+    private Integer vipLevel = 0;
+    private BigDecimal totalSpent = BigDecimal.ZERO;
+
     private LocalDateTime createTime = LocalDateTime.now();
 
     private String nickname;

@@ -12,6 +12,7 @@
             <h1>联想笔记本商城</h1>
             <nav>
                 <a href="index.html">首页</a>
+                <a href="promotions.html">促销活动</a>
                 <a href="cart.html">购物车</a>
                 <a href="orders.html">我的订单</a>
                 <a href="address.html">收货地址</a>
@@ -23,6 +24,21 @@
     <div class="container">
         <div class="product-edit-container">
             <h2>个人信息</h2>
+
+            <!-- 会员信息卡片 -->
+            <div id="vipCard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 12px; color: white; margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin-bottom: 10px; font-size: 24px;">VIP <span id="vipLevel">0</span> 级会员</h3>
+                        <p style="opacity: 0.9; margin-bottom: 5px;">累计消费: ¥<span id="totalSpent">0</span></p>
+                        <p style="opacity: 0.9;">当前折扣: <span id="vipDiscount">无</span></p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="opacity: 0.9; font-size: 14px;" id="nextLevel"></p>
+                    </div>
+                </div>
+            </div>
+
             <form id="profileForm">
                 <div class="form-group">
                     <label>头像</label>

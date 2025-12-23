@@ -1,9 +1,7 @@
 package org.example.lenovonotebookmall.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.lenovonotebookmall.entity.CartItem;
-import org.example.lenovonotebookmall.entity.Product;
-import org.example.lenovonotebookmall.entity.User;
+import org.example.lenovonotebookmall.entity.*;
 import org.example.lenovonotebookmall.repository.CartItemRepository;
 import org.example.lenovonotebookmall.repository.ProductRepository;
 import org.example.lenovonotebookmall.repository.UserRepository;
@@ -18,11 +16,20 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    
+    private final PromotionService promotionService;
+
     public List<CartItem> getCartItems(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
-        return cartItemRepository.findByUserId(user.getId());
+        List<CartItem> items = cartItemRepository.findByUserId(user.getId());
+
+        items.forEach(item -> {
+            Product product = item.getProduct();
+            BigDecimal discountPrice = promotionService.calculateProductDiscount(product, product.getPrice());
+            product.setPrice(discountPrice);
+        });
+
+        return items;
     }
     
     public void addToCart(String username, Long productId, Integer quantity) {
@@ -60,8 +67,10 @@ public class CartService {
     
     public BigDecimal calculateTotal(String username) {
         List<CartItem> items = getCartItems(username);
-        return items.stream()
+        BigDecimal subtotal = items.stream()
                 .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return promotionService.applyCartFullReduction(subtotal);
     }
 }

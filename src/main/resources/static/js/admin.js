@@ -198,34 +198,104 @@ async function loadPromotions() {
     const res = await fetch('/api/promotions');
     const list = (await res.json()).data || [];
     document.getElementById('promotionsList').innerHTML = list.map(function(p) {
-        return '<tr><td>' + p.id + '</td><td>' + p.name + '</td><td>' + p.discount + '%</td><td>' + new Date(p.startTime).toLocaleDateString() + '</td><td>' + new Date(p.endTime).toLocaleDateString() + '</td><td><button class="delete-btn" onclick="deletePromotion(' + p.id + ')">删除</button></td></tr>';
+        const typeMap = {
+            'FULL_REDUCTION': '满减',
+            'DISCOUNT': '折扣',
+            'CATEGORY_DISCOUNT': '分类折扣'
+        };
+        return '<tr><td>' + p.id + '</td><td>' + p.name + '</td><td>' + typeMap[p.type] + '</td><td>' + new Date(p.startTime).toLocaleDateString() + '</td><td>' + new Date(p.endTime).toLocaleDateString() + '</td><td><button class="delete-btn" onclick="deletePromotion(' + p.id + ')">删除</button></td></tr>';
     }).join('');
 }
 
-function showAddPromotion() {
-    const name = prompt('促销名称：');
-    if (!name) return;
-    const discount = parseFloat(prompt('折扣百分比（0-100）：'));
-    if (isNaN(discount) || discount < 0 || discount > 100) return alert('折扣无效');
-    const start = prompt('开始时间（YYYY-MM-DD）：');
-    const end = prompt('结束时间（YYYY-MM-DD）：');
-    if (!start || !end) return alert('时间无效');
+async function showAddPromotion() {
+    const productsRes = await fetch('/api/products');
+    const productsData = await productsRes.json();
+    const products = productsData.data || [];
 
-    fetch('/api/admin/promotions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getToken()
-        },
-        body: JSON.stringify({
-            name: name,
-            discount: discount,
-            startTime: start + 'T00:00:00',
-            endTime: end + 'T23:59:59'
-        })
-    }).then(function(res) {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+            <h2>添加促销</h2>
+            <form id="promotionForm">
+                <input type="text" id="promoName" placeholder="促销名称" required>
+                <select id="promoType" required onchange="togglePromoFields()">
+                    <option value="">选择类型</option>
+                    <option value="DISCOUNT">单品折扣</option>
+                    <option value="FULL_REDUCTION">满减</option>
+                    <option value="CATEGORY_DISCOUNT">分类折扣</option>
+                </select>
+                <select id="promoProduct" style="display:none;">
+                    <option value="">选择商品</option>
+                    ${products.map(p => `<option value="${p.id}">${p.name} - ${p.model}</option>`).join('')}
+                </select>
+                <select id="promoCategory" style="display:none;">
+                    <option value="">选择分类</option>
+                    <option value="ThinkPad">ThinkPad</option>
+                    <option value="YOGA">YOGA</option>
+                    <option value="拯救者">拯救者</option>
+                    <option value="小新">小新</option>
+                </select>
+                <input type="number" id="promoDiscount" placeholder="折扣百分比(0-100)" min="0" max="100" style="display:none;">
+                <input type="number" id="promoMinAmount" placeholder="最低金额" step="0.01" style="display:none;">
+                <input type="number" id="promoDiscountAmount" placeholder="减免金额" step="0.01" style="display:none;">
+                <input type="datetime-local" id="promoStart" required>
+                <input type="datetime-local" id="promoEnd" required>
+                <button type="submit" class="btn-primary">保存</button>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    window.togglePromoFields = function() {
+        const type = document.getElementById('promoType').value;
+        document.getElementById('promoProduct').style.display = type === 'DISCOUNT' ? 'block' : 'none';
+        document.getElementById('promoCategory').style.display = type === 'CATEGORY_DISCOUNT' ? 'block' : 'none';
+        document.getElementById('promoDiscount').style.display = (type === 'DISCOUNT' || type === 'CATEGORY_DISCOUNT') ? 'block' : 'none';
+        document.getElementById('promoMinAmount').style.display = type === 'FULL_REDUCTION' ? 'block' : 'none';
+        document.getElementById('promoDiscountAmount').style.display = type === 'FULL_REDUCTION' ? 'block' : 'none';
+    };
+
+    document.getElementById('promotionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const type = document.getElementById('promoType').value;
+        const payload = {
+            name: document.getElementById('promoName').value,
+            type: type,
+            startTime: document.getElementById('promoStart').value,
+            endTime: document.getElementById('promoEnd').value
+        };
+
+        if (type === 'DISCOUNT') {
+            const productId = document.getElementById('promoProduct').value;
+            if (!productId) {
+                alert('请选择商品');
+                return;
+            }
+            payload.product = { id: parseInt(productId) };
+            payload.discountPercent = parseFloat(document.getElementById('promoDiscount').value);
+        } else if (type === 'CATEGORY_DISCOUNT') {
+            payload.category = document.getElementById('promoCategory').value;
+            payload.discountPercent = parseFloat(document.getElementById('promoDiscount').value);
+        } else if (type === 'FULL_REDUCTION') {
+            payload.minAmount = parseFloat(document.getElementById('promoMinAmount').value);
+            payload.discountAmount = parseFloat(document.getElementById('promoDiscountAmount').value);
+        }
+
+        const res = await fetch('/api/admin/promotions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            },
+            body: JSON.stringify(payload)
+        });
+
         if (res.ok) {
             alert('添加成功');
+            modal.remove();
             loadPromotions();
         } else {
             alert('添加失败');

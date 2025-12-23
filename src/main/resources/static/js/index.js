@@ -98,9 +98,6 @@ async function displayProducts(products) {
                     ${ratingHtml}
                     <div class="price">¥${p.price}</div>
                     <p class="stock">库存: ${p.stock} | 销量: ${p.sales || 0}</p>
-                    <button onclick="event.stopPropagation(); ${admin ? `editProductFromIndex(${p.id})` : `addToCartQuick(${p.id})`}">
-                        ${admin ? '编辑商品' : '加入购物车'}
-                    </button>
                 </div>
             </div>
         `;

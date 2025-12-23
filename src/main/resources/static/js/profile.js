@@ -24,6 +24,35 @@ async function loadProfile() {
             document.getElementById('uploadPrompt').style.display = 'none';
         }
     }
+
+    await loadVipInfo();
+}
+
+async function loadVipInfo() {
+    const res = await fetch('/api/vip/info', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        const vip = data.data;
+        document.getElementById('vipLevel').textContent = vip.vipLevel || 0;
+        document.getElementById('totalSpent').textContent = vip.totalSpent ? vip.totalSpent.toFixed(2) : '0.00';
+
+        if (vip.vipLevel > 0) {
+            const discountPercent = ((1 - vip.discount) * 100).toFixed(0);
+            document.getElementById('vipDiscount').textContent = discountPercent + '折';
+        } else {
+            document.getElementById('vipDiscount').textContent = '无';
+        }
+
+        if (vip.nextLevelThreshold) {
+            const remaining = vip.nextLevelThreshold - vip.totalSpent;
+            document.getElementById('nextLevel').textContent = `距离VIP${vip.vipLevel + 1}还需: ¥${remaining.toFixed(2)}`;
+        } else {
+            document.getElementById('nextLevel').textContent = '已达最高等级';
+        }
+    }
 }
 
 function deleteAvatar() {
