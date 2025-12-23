@@ -10,11 +10,35 @@ async function loadProduct() {
     if (data.success) {
         currentProduct = data.data;
         displayProduct(currentProduct);
+        await loadAverageRating();
         await loadSameModelProducts(currentProduct.model);
         loadComments(productId);
     } else {
         alert('商品不存在');
         location.href = 'index.html';
+    }
+}
+
+async function loadAverageRating() {
+    const res = await fetch(`/api/ratings/product/${productId}/average`);
+    const data = await res.json();
+
+    if (data.success && data.data) {
+        const avg = data.data;
+        const fullStars = Math.floor(avg);
+        const hasHalfStar = avg % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+        const ratingHtml = `
+            <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                <span style="font-size: 18px; color: #ffd700;">
+                    ${'★'.repeat(fullStars)}${hasHalfStar ? '⯨' : ''}${'☆'.repeat(emptyStars)}
+                </span>
+                <span style="font-size: 16px; color: #666;">${avg.toFixed(1)} 分</span>
+            </div>
+        `;
+
+        document.querySelector('.price').insertAdjacentHTML('afterend', ratingHtml);
     }
 }
 

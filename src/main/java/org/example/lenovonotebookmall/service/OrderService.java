@@ -15,6 +15,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final CartService cartService;
+    private final ProductService productService;
 
     public List<Order> getUserOrders(Long userId) {
         return orderRepository.findByUserIdOrderByCreateTimeDesc(userId);
@@ -33,14 +34,24 @@ public class OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setAddress(address);
-        order.setStatus(Order.OrderStatus.PENDING);
+        order.setStatus(Order.OrderStatus.PAID);
 
         List<OrderItem> orderItems = cartItems.stream().map(cartItem -> {
+            Product product = cartItem.getProduct();
+
+            if (product.getStock() < cartItem.getQuantity()) {
+                throw new RuntimeException("商品 " + product.getName() + " 库存不足");
+            }
+
+            product.setStock(product.getStock() - cartItem.getQuantity());
+            product.setSales((product.getSales() == null ? 0 : product.getSales()) + cartItem.getQuantity());
+            productService.saveProduct(product);
+
             OrderItem item = new OrderItem();
             item.setOrder(order);
-            item.setProduct(cartItem.getProduct());
+            item.setProduct(product);
             item.setQuantity(cartItem.getQuantity());
-            item.setPrice(cartItem.getProduct().getPrice());
+            item.setPrice(product.getPrice());
             return item;
         }).collect(Collectors.toList());
 

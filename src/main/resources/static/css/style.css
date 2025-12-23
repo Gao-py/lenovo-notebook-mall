@@ -1,3 +1,4 @@
+<|updated_code|>
 * {
     margin: 0;
     padding: 0;
@@ -1369,4 +1370,51 @@ button {
     font-size: 20px;
     font-weight: bold;
     color: #e4393c;
+}
+
+/* 评分样式 */
+.rating-section {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.star {
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.star.active,
+.star:hover {
+    color: #ffd700;
+}
+
+.rating-comment {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 10px 0;
+    resize: vertical;
+}
+
+.rating-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+}
+
+.rating-display .stars {
+    color: #ffd700;
+    font-size: 18px;
 }
