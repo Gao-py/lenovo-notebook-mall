@@ -43,11 +43,11 @@ public class OrderRatingService {
     public OrderRating getRatingByOrderItemId(Long orderItemId) {
         return ratingRepository.findByOrderItemId(orderItemId).orElse(null);
     }
-
+    
     public List<OrderRating> getRatingsByOrderId(Long orderId) {
         return ratingRepository.findByOrderId(orderId);
     }
-
+    
     public Double getAverageRatingByProductId(Long productId) {
         List<OrderRating> ratings = ratingRepository.findByProductId(productId);
         if (ratings.isEmpty()) {

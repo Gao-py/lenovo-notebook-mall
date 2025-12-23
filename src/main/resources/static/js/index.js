@@ -67,17 +67,44 @@ async function displayProducts(products) {
 
     const admin = isAdmin();
 
-    list.innerHTML = products.map(p => `
-        <div class="product-card" onclick="${admin ? `editProductFromIndex(${p.id})` : `goToProduct(${p.id})`}">
-            <img src="${p.imageUrl || 'https://via.placeholder.com/280x220?text=Lenovo'}" alt="${p.name}">
-            <div class="content">
-                <h3>${p.name}</h3>
-                <p class="model">${p.model}${p.category ? ' | ' + p.category : ''}</p>
-                <div class="price">¥${p.price}</div>
-                <p class="stock">库存: ${p.stock} | 销量: ${p.sales || 0}</p>
+    const productsWithRatings = await Promise.all(products.map(async p => {
+        const ratingRes = await fetch(`/api/ratings/product/${p.id}/average`);
+        const ratingData = await ratingRes.json();
+        return {
+            ...p,
+            avgRating: ratingData.success && ratingData.data ? ratingData.data : null
+        };
+    }));
+
+    list.innerHTML = productsWithRatings.map(p => {
+        let ratingHtml = '';
+        if (p.avgRating) {
+            const fullStars = Math.floor(p.avgRating);
+            const emptyStars = 5 - fullStars;
+            ratingHtml = `
+                <div style="display: flex; align-items: center; gap: 5px; margin: 8px 0;">
+                    <span style="color: #ffd700; font-size: 20px;">${'★'.repeat(fullStars)}${'☆'.repeat(emptyStars)}</span>
+                    <span style="color: #666; font-size: 14px;">${p.avgRating.toFixed(1)}</span>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="product-card" onclick="${admin ? `editProductFromIndex(${p.id})` : `goToProduct(${p.id})`}">
+                <img src="${p.imageUrl || 'https://via.placeholder.com/280x220?text=Lenovo'}" alt="${p.name}">
+                <div class="content">
+                    <h3>${p.name}</h3>
+                    <p class="model">${p.model}${p.category ? ' | ' + p.category : ''}</p>
+                    ${ratingHtml}
+                    <div class="price">¥${p.price}</div>
+                    <p class="stock">库存: ${p.stock} | 销量: ${p.sales || 0}</p>
+                    <button onclick="event.stopPropagation(); ${admin ? `editProductFromIndex(${p.id})` : `addToCartQuick(${p.id})`}">
+                        ${admin ? '编辑商品' : '加入购物车'}
+                    </button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function editProductFromIndex(id) {
@@ -86,6 +113,16 @@ function editProductFromIndex(id) {
 
 function goToProduct(id) {
     location.href = `product.html?id=${id}`;
+}
+
+async function addToCartQuick(productId) {
+    if (!requireAuth()) return;
+    const res = await fetch(`/api/cart/add?productId=${productId}&quantity=1`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    alert(data.success ? '已加入购物车' : data.message);
 }
 
 function showSlide(n) {
