@@ -1,6 +1,5 @@
 let currentProductId = null;
 
-// 加载评论列表
 async function loadComments(productId) {
     currentProductId = productId;
     console.log('开始加载评论，商品ID:', productId);
@@ -21,7 +20,6 @@ async function loadComments(productId) {
     }
 }
 
-// 显示评论（递归显示所有层级）
 function displayComments(comments) {
     const commentsList = document.getElementById('commentsList');
 
@@ -36,15 +34,20 @@ function displayComments(comments) {
     commentsList.innerHTML = topComments.map(comment => renderComment(comment, comments, 0)).join('');
 }
 
-// 递归渲染评论及其所有回复
 function renderComment(comment, allComments, level) {
     const replies = allComments.filter(c => c.parentId === comment.id);
     const indent = level * 30;
+    const username = comment.username || '匿名用户';
+    const firstChar = username.charAt(0);
+    const avatar = comment.avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23ddd'/%3E%3Ctext x='20' y='26' text-anchor='middle' font-size='18' fill='%23666'%3E${firstChar}%3C/text%3E%3C/svg%3E`;
 
     return `
         <div class="comment-item" style="margin-left: ${indent}px;">
             <div class="comment-header">
-                <span class="comment-user">${comment.username || '匿名用户'}</span>
+                <span class="comment-user">
+                    <img src="${avatar}" alt="头像" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 8px;">
+                    ${username}
+                </span>
                 <span class="comment-time">${formatTime(comment.createTime)}</span>
             </div>
             <div class="comment-content">${comment.content}</div>
@@ -61,7 +64,6 @@ function renderComment(comment, allComments, level) {
     `;
 }
 
-// 发表评论
 async function submitComment() {
     const content = document.getElementById('commentContent').value.trim();
     if (!content) {
@@ -101,19 +103,16 @@ async function submitComment() {
     }
 }
 
-// 显示回复框
 function showReplyBox(commentId) {
     document.querySelectorAll('.reply-box').forEach(box => box.style.display = 'none');
     document.getElementById(`replyBox${commentId}`).style.display = 'block';
 }
 
-// 取消回复
 function cancelReply(commentId) {
     document.getElementById(`replyBox${commentId}`).style.display = 'none';
     document.getElementById(`replyContent${commentId}`).value = '';
 }
 
-// 发表回复
 async function submitReply(parentId) {
     const content = document.getElementById(`replyContent${parentId}`).value.trim();
     if (!content) {
@@ -151,7 +150,6 @@ async function submitReply(parentId) {
     }
 }
 
-// 格式化时间
 function formatTime(timeStr) {
     if (!timeStr) return '';
     const date = new Date(timeStr);

@@ -9,6 +9,7 @@ public class CommentResponse {
     private Long productId;
     private Long userId;
     private String username;
+    private String avatar;
     private String content;
     private Long parentId;
     private LocalDateTime createTime;

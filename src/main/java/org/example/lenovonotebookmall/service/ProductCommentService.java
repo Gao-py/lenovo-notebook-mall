@@ -30,7 +30,7 @@ public class ProductCommentService {
         List<ProductComment> comments = commentRepository.findByProductIdOrderByCreateTimeDesc(productId);
         return comments.stream().map(this::toResponse).collect(Collectors.toList());
     }
-    
+
     private CommentResponse toResponse(ProductComment comment) {
         CommentResponse response = new CommentResponse();
         response.setId(comment.getId());
@@ -39,10 +39,13 @@ public class ProductCommentService {
         response.setContent(comment.getContent());
         response.setParentId(comment.getParentId());
         response.setCreateTime(comment.getCreateTime());
-        
+
         userRepository.findById(comment.getUserId())
-            .ifPresent(user -> response.setUsername(user.getUsername()));
-        
+                .ifPresent(user -> {
+                    response.setUsername(user.getUsername());
+                    response.setAvatar(user.getAvatar());
+                });
+
         return response;
     }
 }

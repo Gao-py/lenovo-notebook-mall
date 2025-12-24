@@ -1234,9 +1234,13 @@ button {
     gap: 8px;
 }
 
-.comment-user::before {
-    content: "👤";
-    font-size: 18px;
+.comment-user {
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .comment-time {
