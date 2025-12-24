@@ -7,6 +7,7 @@ import org.example.lenovonotebookmall.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,8 @@ public class UserService {
             .filter(u -> u.getRole() == User.UserRole.ADMIN)
             .toList();
         if (!admins.isEmpty()) {
-            user.setAssignedAdminId(admins.get(0).getId());
+            int randomIndex = new Random().nextInt(admins.size());
+            user.setAssignedAdminId(admins.get(randomIndex).getId());
         }
         return userRepository.save(user);
     }
