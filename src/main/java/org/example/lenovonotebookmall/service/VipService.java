@@ -12,19 +12,20 @@ public class VipService {
     private final UserRepository userRepository;
     
     private static final BigDecimal[] VIP_THRESHOLDS = {
-        new BigDecimal("10000"),  // 1级
-        new BigDecimal("20000"),  // 2级
-        new BigDecimal("30000"),  // 3级
-        new BigDecimal("50000"),  // 4级
-        new BigDecimal("80000"),  // 5级
-        new BigDecimal("130000")  // 6级
+        new BigDecimal("10000"),
+        new BigDecimal("20000"),
+        new BigDecimal("30000"),
+        new BigDecimal("50000"),
+        new BigDecimal("80000"),
+        new BigDecimal("130000")
     };
     
     public void updateVipLevel(String username, BigDecimal orderAmount) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
         
-        user.setTotalSpent(user.getTotalSpent().add(orderAmount));
+        BigDecimal currentSpent = user.getTotalSpent() == null ? BigDecimal.ZERO : user.getTotalSpent();
+        user.setTotalSpent(currentSpent.add(orderAmount));
         
         int newLevel = 0;
         for (int i = 0; i < VIP_THRESHOLDS.length; i++) {
