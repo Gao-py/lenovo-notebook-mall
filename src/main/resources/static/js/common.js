@@ -262,7 +262,7 @@ function updateUserNav() {
             <a href="#" onclick="logout()">退出</a>
         `;
     } else {
-        userNav.innerHTML = '<a href="#" onclick="showModal()">登录/注册</a>';
+        userNav.innerHTML = '<a href="#" onclick="openModal()">登录/注册</a>';
     }
 }
 

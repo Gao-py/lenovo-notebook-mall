@@ -17,6 +17,37 @@
         </div>
     </header>
 
+    <!-- 添加登录注册模态框 -->
+    <div class="auth-modal" id="authModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="loginForm">
+                <h2>登录</h2>
+                <input type="text" id="loginUsername" placeholder="用户名">
+                <input type="password" id="loginPassword" placeholder="密码">
+                <div class="captcha-box">
+                    <input type="text" id="loginCaptcha" placeholder="验证码" style="width: 60%;">
+                    <img id="loginCaptchaImg" src="" alt="验证码" onclick="refreshLoginCaptcha()" style="width: 35%; height: 40px; cursor: pointer; border-radius: 5px;">
+                </div>
+                <button onclick="login()">登录</button>
+                <p>还没有账号? <a href="#" onclick="showRegister()">立即注册</a></p>
+            </div>
+            <div id="registerForm" class="hidden">
+                <h2>注册</h2>
+                <input type="text" id="regUsername" placeholder="用户名">
+                <input type="password" id="regPassword" placeholder="密码">
+                <input type="email" id="regEmail" placeholder="邮箱">
+                <div class="captcha-box" style="display: flex; gap: 10px;">
+                    <input type="text" id="regCode" placeholder="邮箱验证码" style="flex: 1;">
+                    <button type="button" id="sendCodeBtn" onclick="sendVerificationCode()" style="width: auto; padding: 12px 20px;">发送验证码</button>
+                </div>
+                <input type="text" id="regPhone" placeholder="手机号（可选）">
+                <button onclick="register()">注册</button>
+                <p>已有账号? <a href="#" onclick="showLogin()">立即登录</a></p>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="admin-panel">
             <div class="admin-sidebar">
