@@ -15,6 +15,7 @@ async function checkAuth() {
     const userNav = document.getElementById('userNav');
     const cartLink = document.querySelector('a[href="cart.html"]');
     const adminLink = document.querySelector('a[href="admin.html"]');
+    const ordersLink = document.querySelector('a[href="orders.html"]');
 
     if (token && currentUser) {
         try {
@@ -43,14 +44,17 @@ async function checkAuth() {
 
         if (userRole === 'ADMIN') {
             if (cartLink) cartLink.style.display = 'none';
+            if (ordersLink) ordersLink.style.display = 'none';
             if (adminLink) adminLink.style.display = 'inline-block';
         } else {
             if (cartLink) cartLink.style.display = 'inline-block';
+            if (ordersLink) ordersLink.style.display = 'inline-block';
             if (adminLink) adminLink.style.display = 'none';
         }
     } else {
         userNav.innerHTML = `<a href="#" onclick="openModal()">登录/注册</a>`;
         if (cartLink) cartLink.style.display = 'inline-block';
+        if (ordersLink) ordersLink.style.display = 'inline-block';
         if (adminLink) adminLink.style.display = 'none';
     }
 }
@@ -244,5 +248,41 @@ function logout() {
     localStorage.removeItem('userRole');
     location.href = 'index.html';
 }
+
+function updateUserNav() {
+    const userNav = document.getElementById('userNav');
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (token) {
+        const username = parseJwt(token).sub;
+        userNav.innerHTML = `
+            <span>欢迎, ${username}</span>
+            ${role === 'USER' ? '<a href="orders.html">我的订单</a>' : ''}
+            <a href="#" onclick="logout()">退出</a>
+        `;
+    } else {
+        userNav.innerHTML = '<a href="#" onclick="showModal()">登录/注册</a>';
+    }
+}
+
+function updateNavigation() {
+    const role = localStorage.getItem('role');
+    const navOrders = document.getElementById('navOrders');
+    const navAdmin = document.getElementById('navAdmin');
+
+    if (role === 'ADMIN') {
+        if (navOrders) navOrders.style.display = 'none';
+        if (navAdmin) navAdmin.style.display = 'inline';
+    } else {
+        if (navOrders) navOrders.style.display = 'inline';
+        if (navAdmin) navAdmin.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateUserNav();
+    updateNavigation();
+});
 
 checkAuth();
