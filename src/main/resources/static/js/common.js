@@ -61,7 +61,8 @@ async function checkAuth() {
 
 function requireAuth() {
     if (!token) {
-        openModal();
+        alert('请先登录');
+        location.href = 'index.html';
         return false;
     }
     return true;
@@ -249,6 +250,47 @@ function logout() {
     location.href = 'index.html';
 }
 
+function updateNav() {
+    const userNav = document.getElementById('userNav');
+    const navAdmin = document.getElementById('navAdmin');
+    const navOrders = document.getElementById('navOrders');
+    const navPromotions = document.getElementById('navPromotions');
+
+    if (navAdmin) {
+        navAdmin.style.display = userRole === 'ADMIN' ? 'inline-block' : 'none';
+    }
+
+    if (navOrders) {
+        navOrders.style.display = token ? 'inline-block' : 'none';
+    }
+
+    if (navPromotions) {
+        navPromotions.style.display = token ? 'inline-block' : 'none';
+    }
+
+    const chatLink = document.querySelector('a[href="chat.html"]');
+    if (chatLink && userRole === 'ADMIN') {
+        chatLink.textContent = '客户消息';
+    }
+
+    if (token && username) {
+        userNav.innerHTML = `
+            <span style="margin-right: 10px;">欢迎, ${username}</span>
+            <a href="profile.html">个人中心</a>
+            <a href="#" onclick="logout()">退出</a>
+        `;
+    } else {
+        userNav.innerHTML = '<a href="#" onclick="showModal()">登录/注册</a>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateUserNav();
+    updateNavigation();
+});
+
+checkAuth();
+
 function updateUserNav() {
     const userNav = document.getElementById('userNav');
     const token = localStorage.getItem('token');
@@ -280,9 +322,4 @@ function updateNavigation() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    updateUserNav();
-    updateNavigation();
-});
-
-checkAuth();
+updateNav();

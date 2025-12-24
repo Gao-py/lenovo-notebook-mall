@@ -6,6 +6,7 @@ import org.example.lenovonotebookmall.entity.User;
 import org.example.lenovonotebookmall.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +15,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     
     public User register(User user) {
+        List<User> admins = userRepository.findAll().stream()
+            .filter(u -> u.getRole() == User.UserRole.ADMIN)
+            .toList();
+        if (!admins.isEmpty()) {
+            user.setAssignedAdminId(admins.get(0).getId());
+        }
         return userRepository.save(user);
     }
 

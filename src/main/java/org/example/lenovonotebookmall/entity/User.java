@@ -46,6 +46,8 @@ public class User {
     @Column(length = 200)
     private String signature;
 
+    private Long assignedAdminId;
+
     public enum UserRole {
         USER, ADMIN
     }
