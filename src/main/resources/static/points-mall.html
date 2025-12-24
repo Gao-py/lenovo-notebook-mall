@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分商城 - 联想笔记本商城</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>联想笔记本商城</h1>
+            <nav>
+                <a href="index.html">首页</a>
+                <a href="promotions.html">促销活动</a>
+                <a href="points-mall.html">积分商城</a>
+                <a href="cart.html">购物车</a>
+                <a href="orders.html">我的订单</a>
+                <a href="profile.html">个人中心</a>
+                <div id="userNav"></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; color: white; margin: 30px 0;">
+            <h2 style="margin-bottom: 15px;">我的积分</h2>
+            <div style="font-size: 36px; font-weight: bold;" id="userPoints">0</div>
+        </div>
+
+        <h2 style="margin: 30px 0 20px 0;">优惠券兑换</h2>
+        <div class="product-list" id="couponsList"></div>
+
+        <h2 style="margin: 30px 0 20px 0;">我的优惠券</h2>
+        <div id="myCouponsList"></div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 联想笔记本商城. All rights reserved.</p>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/points-mall.js"></script>
+</body>
+</html>

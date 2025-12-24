@@ -39,19 +39,22 @@ async function loadVipInfo() {
         document.getElementById('vipLevel').textContent = vip.vipLevel || 0;
         document.getElementById('totalSpent').textContent = vip.totalSpent ? vip.totalSpent.toFixed(2) : '0.00';
 
-        if (vip.vipLevel > 0) {
-            const discountPercent = ((1 - vip.discount) * 100).toFixed(0);
-            document.getElementById('vipDiscount').textContent = discountPercent + '折';
-        } else {
-            document.getElementById('vipDiscount').textContent = '无';
-        }
-
-        if (vip.nextLevelThreshold) {
-            const remaining = vip.nextLevelThreshold - vip.totalSpent;
-            document.getElementById('nextLevel').textContent = `距离VIP${vip.vipLevel + 1}还需: ¥${remaining.toFixed(2)}`;
-        } else {
-            document.getElementById('nextLevel').textContent = '已达最高等级';
-        }
+        const vipCard = document.getElementById('vipCard');
+        vipCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <h3 style="margin-bottom: 10px; font-size: 24px;">VIP ${vip.vipLevel || 0} 级会员</h3>
+                    <p style="opacity: 0.9; margin-bottom: 5px;">累计消费: ¥${vip.totalSpent ? vip.totalSpent.toFixed(2) : '0.00'}</p>
+                    <p style="opacity: 0.9; margin-bottom: 5px;">会员经验: ${vip.vipExperience || 0}</p>
+                    <p style="opacity: 0.9; margin-bottom: 5px;">会员积分: ${vip.vipPoints || 0}</p>
+                    <p style="opacity: 0.9;">当前折扣: ${vip.vipLevel > 0 ? ((1 - vip.discount) * 100).toFixed(0) + '折 (今日剩余' + vip.remainingDiscounts + '次)' : '无'}</p>
+                </div>
+                <div style="text-align: right;">
+                    ${vip.nextLevelExp ? `<p style="opacity: 0.9; font-size: 14px;">距离VIP${vip.vipLevel + 1}还需: ${vip.nextLevelExp - vip.vipExperience} 经验值</p>` : '<p style="opacity: 0.9; font-size: 14px;">已达最高等级</p>'}
+                    <button onclick="location.href='points-mall.html'" style="margin-top: 10px; padding: 8px 20px; background: white; color: #667eea; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">积分商城</button>
+                </div>
+            </div>
+        `;
     }
 }
 

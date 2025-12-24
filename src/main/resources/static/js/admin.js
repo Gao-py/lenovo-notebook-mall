@@ -27,6 +27,7 @@ function showSection(section) {
     if (section === 'products') loadProducts();
     else if (section === 'users') loadUsers();
     else if (section === 'promotions') loadPromotions();
+    else if (section === 'coupons') loadCoupons();
 }
 
 async function loadProducts() {
@@ -316,5 +317,176 @@ async function deletePromotion(id) {
         alert('删除失败');
     }
 }
+
+async function loadCoupons() {
+    const res = await fetch('/api/points-mall/coupons');
+    const data = await res.json();
+    const list = data.data || [];
+
+    const typeMap = {
+        'DISCOUNT': '折扣券',
+        'CASH': '代金券',
+        'FULL_REDUCTION': '满减券'
+    };
+
+    document.getElementById('couponsList').innerHTML = list.map(c => {
+        let value = '';
+        if (c.type === 'DISCOUNT') {
+            value = c.discountPercent + '折';
+        } else if (c.type === 'CASH') {
+            value = '¥' + c.discountAmount;
+        } else if (c.type === 'FULL_REDUCTION') {
+            value = '满¥' + c.minAmount + '减¥' + c.discountAmount;
+        }
+
+        const validFrom = c.validFrom ? new Date(c.validFrom).toLocaleDateString('zh-CN') : '无限制';
+        const validUntil = c.validUntil ? new Date(c.validUntil).toLocaleDateString('zh-CN') : '无限制';
+
+        return `
+            <tr>
+                <td>${c.id}</td>
+                <td>${c.name}</td>
+                <td>${value}</td>
+                <td>${c.pointsCost}</td>
+                <td>${c.stock !== null ? c.stock : '无限'}</td>
+                <td>${typeMap[c.type]}</td>
+                <td>${validFrom}</td>
+                <td>${validUntil}</td>
+                <td>
+                    <button class="edit-btn" onclick="editCoupon(${c.id})">编辑</button>
+                    <button class="delete-btn" onclick="deleteCoupon(${c.id})">删除</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function showAddCoupon() {
+    document.getElementById('couponModalTitle').textContent = '添加优惠券';
+    document.getElementById('couponForm').reset();
+    document.getElementById('couponId').value = '';
+    document.getElementById('couponModal').classList.add('show');
+}
+
+async function editCoupon(id) {
+    const res = await fetch('/api/points-mall/coupons');
+    const data = await res.json();
+    const coupon = data.data.find(c => c.id === id);
+
+    if (coupon) {
+        document.getElementById('couponModalTitle').textContent = '编辑优惠券';
+        document.getElementById('couponId').value = coupon.id;
+        document.getElementById('couponName').value = coupon.name;
+        document.getElementById('couponType').value = coupon.type;
+        document.getElementById('pointsCost').value = coupon.pointsCost;
+        document.getElementById('stock').value = coupon.stock || '';
+
+        if (coupon.type === 'DISCOUNT') {
+            document.getElementById('discountPercent').value = coupon.discountPercent;
+        } else if (coupon.type === 'CASH') {
+            document.getElementById('discountAmount').value = coupon.discountAmount;
+        } else if (coupon.type === 'FULL_REDUCTION') {
+            document.getElementById('minAmount').value = coupon.minAmount;
+            document.getElementById('discountAmount').value = coupon.discountAmount;
+        }
+
+        if (coupon.validFrom) {
+            document.getElementById('validFrom').value = new Date(coupon.validFrom).toISOString().slice(0, 16);
+        }
+        if (coupon.validUntil) {
+            document.getElementById('validUntil').value = new Date(coupon.validUntil).toISOString().slice(0, 16);
+        }
+
+        toggleCouponFields();
+        document.getElementById('couponModal').classList.add('show');
+    }
+}
+
+async function deleteCoupon(id) {
+    if (!confirm('确定删除该优惠券吗？')) return;
+
+    const res = await fetch(`/api/points-mall/admin/coupons/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+
+    if (res.ok) {
+        alert('删除成功');
+        loadCoupons();
+    } else {
+        alert('删除失败');
+    }
+}
+
+function closeCouponModal() {
+    document.getElementById('couponModal').classList.remove('show');
+}
+
+function toggleCouponFields() {
+    const type = document.getElementById('couponType').value;
+
+    document.getElementById('discountPercent').style.display = 'none';
+    document.getElementById('discountAmount').style.display = 'none';
+    document.getElementById('minAmount').style.display = 'none';
+
+    if (type === 'DISCOUNT') {
+        document.getElementById('discountPercent').style.display = 'block';
+        document.getElementById('discountPercent').required = true;
+    } else if (type === 'CASH') {
+        document.getElementById('discountAmount').style.display = 'block';
+        document.getElementById('discountAmount').required = true;
+    } else if (type === 'FULL_REDUCTION') {
+        document.getElementById('minAmount').style.display = 'block';
+        document.getElementById('discountAmount').style.display = 'block';
+        document.getElementById('minAmount').required = true;
+        document.getElementById('discountAmount').required = true;
+    }
+}
+
+document.getElementById('couponForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('couponId').value;
+    const type = document.getElementById('couponType').value;
+
+    const payload = {
+        name: document.getElementById('couponName').value,
+        type: type,
+        pointsCost: parseInt(document.getElementById('pointsCost').value),
+        stock: document.getElementById('stock').value ? parseInt(document.getElementById('stock').value) : null,
+        validFrom: document.getElementById('validFrom').value || null,
+        validUntil: document.getElementById('validUntil').value || null
+    };
+
+    if (type === 'DISCOUNT') {
+        payload.discountPercent = parseFloat(document.getElementById('discountPercent').value);
+    } else if (type === 'CASH') {
+        payload.discountAmount = parseFloat(document.getElementById('discountAmount').value);
+    } else if (type === 'FULL_REDUCTION') {
+        payload.minAmount = parseFloat(document.getElementById('minAmount').value);
+        payload.discountAmount = parseFloat(document.getElementById('discountAmount').value);
+    }
+
+    const url = id ? `/api/points-mall/admin/coupons/${id}` : '/api/points-mall/admin/coupons';
+    const method = id ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getToken()
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        alert('保存成功');
+        closeCouponModal();
+        loadCoupons();
+    } else {
+        alert('保存失败: ' + data.message);
+    }
+});
 
 showSection('products');

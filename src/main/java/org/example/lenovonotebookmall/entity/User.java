@@ -33,6 +33,9 @@ public class User {
     private Integer vipLevel = 0;
     private BigDecimal totalSpent = BigDecimal.ZERO;
 
+    private Integer vipExperience = 0;
+    private Integer vipPoints = 0;
+
     private LocalDateTime createTime = LocalDateTime.now();
 
     private String nickname;

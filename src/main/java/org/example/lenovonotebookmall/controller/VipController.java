@@ -26,9 +26,13 @@ public class VipController {
         VipInfo info = new VipInfo();
         info.setVipLevel(user.getVipLevel());
         info.setTotalSpent(user.getTotalSpent());
+        info.setVipExperience(user.getVipExperience());
+        info.setVipPoints(user.getVipPoints());
         info.setDiscount(vipService.getVipDiscount(user.getVipLevel()));
-        info.setNextLevelThreshold(vipService.getNextLevelThreshold(user.getVipLevel()));
-        
+        info.setNextLevelExp(vipService.getNextLevelExp(user.getVipLevel()));
+        info.setRemainingDiscounts(vipService.getRemainingDiscounts(user.getId(), user.getVipLevel()));
+        info.setCanUseDiscount(vipService.canUseDiscount(user.getId(), user.getVipLevel()));
+
         return ApiResponse.success(info);
     }
     
@@ -36,7 +40,11 @@ public class VipController {
     public static class VipInfo {
         private Integer vipLevel;
         private BigDecimal totalSpent;
+        private Integer vipExperience;
+        private Integer vipPoints;
         private BigDecimal discount;
-        private BigDecimal nextLevelThreshold;
+        private Integer nextLevelExp;
+        private Integer remainingDiscounts;
+        private Boolean canUseDiscount;
     }
 }

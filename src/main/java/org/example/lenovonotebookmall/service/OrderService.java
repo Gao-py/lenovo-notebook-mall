@@ -2,11 +2,11 @@ package org.example.lenovonotebookmall.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.lenovonotebookmall.entity.*;
-import org.example.lenovonotebookmall.repository.OrderRepository;
-import org.example.lenovonotebookmall.repository.UserRepository;
+import org.example.lenovonotebookmall.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,13 +19,14 @@ public class OrderService {
     private final ProductService productService;
     private final PromotionService promotionService;
     private final VipService vipService;
+    private final UserCouponRepository userCouponRepository;
 
     public List<Order> getUserOrders(Long userId) {
         return orderRepository.findByUserIdOrderByCreateTimeDesc(userId);
     }
 
     @Transactional
-    public Order createOrder(String username, String address, String phone) {
+    public Order createOrder(String username, String address, String phone, Long userCouponId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
@@ -68,8 +69,53 @@ public class OrderService {
 
         BigDecimal afterPromotion = promotionService.applyCartFullReduction(subtotal);
 
-        BigDecimal vipDiscount = vipService.getVipDiscount(user.getVipLevel());
-        BigDecimal finalTotal = afterPromotion.multiply(vipDiscount).setScale(2, java.math.RoundingMode.HALF_UP);
+        if (userCouponId != null) {
+            UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
+                    .orElseThrow(() -> new RuntimeException("优惠券不存在"));
+
+            if (userCoupon.getIsUsed()) {
+                throw new RuntimeException("优惠券已使用");
+            }
+
+            if (!userCoupon.getUser().getId().equals(user.getId())) {
+                throw new RuntimeException("无权使用此优惠券");
+            }
+
+            if (userCoupon.getExpiryTime() != null && LocalDateTime.now().isAfter(userCoupon.getExpiryTime())) {
+                throw new RuntimeException("优惠券已过期");
+            }
+
+            Coupon coupon = userCoupon.getCoupon();
+
+            if (coupon.getProduct() != null) {
+                boolean hasProduct = orderItems.stream()
+                    .anyMatch(item -> item.getProduct().getId().equals(coupon.getProduct().getId()));
+                if (!hasProduct) {
+                    throw new RuntimeException("优惠券不适用于当前商品");
+                }
+            }
+
+            if (coupon.getCategory() != null) {
+                boolean hasCategory = orderItems.stream()
+                    .anyMatch(item -> coupon.getCategory().equals(item.getProduct().getCategory()));
+                if (!hasCategory) {
+                    throw new RuntimeException("优惠券不适用于当前商品分类");
+                }
+            }
+
+            afterPromotion = applyCoupon(afterPromotion, coupon, orderItems);
+
+            userCoupon.setIsUsed(true);
+            userCoupon.setUsedTime(LocalDateTime.now());
+            userCouponRepository.save(userCoupon);
+        }
+
+        BigDecimal finalTotal = afterPromotion;
+        if (vipService.canUseDiscount(user.getId(), user.getVipLevel())) {
+            BigDecimal vipDiscount = vipService.getVipDiscount(user.getVipLevel());
+            finalTotal = afterPromotion.multiply(vipDiscount).setScale(2, java.math.RoundingMode.HALF_UP);
+            vipService.recordDiscountUsage(user.getId());
+        }
 
         order.setTotalAmount(finalTotal);
 
@@ -80,5 +126,50 @@ public class OrderService {
         cartService.clearCart(username);
 
         return savedOrder;
+    }
+
+    private BigDecimal applyCoupon(BigDecimal amount, Coupon coupon, List<OrderItem> items) {
+        if (coupon.getProduct() != null || coupon.getCategory() != null) {
+            BigDecimal matchedAmount = items.stream()
+                .filter(item -> {
+                    if (coupon.getProduct() != null) {
+                        return item.getProduct().getId().equals(coupon.getProduct().getId());
+                    }
+                    if (coupon.getCategory() != null) {
+                        return coupon.getCategory().equals(item.getProduct().getCategory());
+                    }
+                    return false;
+                })
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal unmatchedAmount = amount.subtract(matchedAmount);
+
+            BigDecimal discountedAmount = switch (coupon.getType()) {
+                case DISCOUNT -> matchedAmount.multiply(coupon.getDiscountPercent())
+                        .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+                case CASH -> matchedAmount.subtract(coupon.getDiscountAmount()).max(BigDecimal.ZERO);
+                case FULL_REDUCTION -> {
+                    if (coupon.getMinAmount() != null && matchedAmount.compareTo(coupon.getMinAmount()) >= 0) {
+                        yield matchedAmount.subtract(coupon.getDiscountAmount()).max(BigDecimal.ZERO);
+                    }
+                    yield matchedAmount;
+                }
+            };
+
+            return unmatchedAmount.add(discountedAmount);
+        }
+
+        return switch (coupon.getType()) {
+            case DISCOUNT -> amount.multiply(coupon.getDiscountPercent())
+                    .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+            case CASH -> amount.subtract(coupon.getDiscountAmount()).max(BigDecimal.ZERO);
+            case FULL_REDUCTION -> {
+                if (coupon.getMinAmount() != null && amount.compareTo(coupon.getMinAmount()) >= 0) {
+                    yield amount.subtract(coupon.getDiscountAmount()).max(BigDecimal.ZERO);
+                }
+                yield amount;
+            }
+        };
     }
 }

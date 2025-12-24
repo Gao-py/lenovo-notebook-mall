@@ -127,20 +127,26 @@ async function buyNow() {
 
     const quantity = parseInt(document.getElementById('quantity').value);
 
-    const res = await fetch('/api/addresses', {
+    const addressRes = await fetch('/api/addresses', {
         headers: { 'Authorization': 'Bearer ' + token }
     });
-    const data = await res.json();
+    const addressData = await addressRes.json();
 
-    if (!data.success || !data.data || data.data.length === 0) {
+    if (!addressData.success || !addressData.data || addressData.data.length === 0) {
         if (confirm('您还没有收货地址，是否前往添加？')) {
             location.href = 'address.html';
         }
         return;
     }
 
-    const addresses = data.data;
+    const couponsRes = await fetch('/api/points-mall/my-coupons', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const couponsData = await couponsRes.json();
+
+    const addresses = addressData.data;
     const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+    const coupons = couponsData.success ? couponsData.data : [];
 
     const modal = document.createElement('div');
     modal.className = 'modal show';
@@ -159,6 +165,21 @@ async function buyNow() {
                 <div style="font-weight: bold; margin-bottom: 8px;">${defaultAddr.receiverName} ${defaultAddr.phone}</div>
                 <div style="color: #666;">${defaultAddr.address}</div>
             </div>
+            ${coupons.length > 0 ? `
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 15px 0;">
+                    <div style="font-weight: bold; margin-bottom: 12px;">选择优惠券</div>
+                    <select id="couponSelect" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                        <option value="">不使用优惠券</option>
+                        ${coupons.map(uc => {
+                            const c = uc.coupon;
+                            const desc = c.type === 'DISCOUNT' ? `${c.discountPercent}折` :
+                                       c.type === 'CASH' ? `¥${c.discountAmount}` :
+                                       `满¥${c.minAmount}减¥${c.discountAmount}`;
+                            return `<option value="${uc.id}">${c.name} - ${desc}</option>`;
+                        }).join('')}
+                    </select>
+                </div>
+            ` : ''}
             <button onclick="confirmBuyNow(${quantity}, '${defaultAddr.receiverName}', '${defaultAddr.phone}', '${defaultAddr.address}')" class="btn-primary">确认下单</button>
             <button onclick="location.href='address.html'" class="btn-secondary" style="margin-left: 10px;">更换地址</button>
             <button onclick="this.closest('.modal').remove()" class="btn-secondary" style="margin-left: 10px;">取消</button>
@@ -173,6 +194,9 @@ async function confirmBuyNow(quantity, name, phone, address) {
         headers: { 'Authorization': 'Bearer ' + token }
     });
 
+    const couponSelect = document.getElementById('couponSelect');
+    const userCouponId = couponSelect ? (couponSelect.value || null) : null;
+
     const checkoutRes = await fetch('/api/orders/checkout', {
         method: 'POST',
         headers: {
@@ -181,7 +205,8 @@ async function confirmBuyNow(quantity, name, phone, address) {
         },
         body: JSON.stringify({
             address: `${name} ${phone} - ${address}`,
-            phone: phone
+            phone: phone,
+            userCouponId: userCouponId ? parseInt(userCouponId) : null
         })
     });
 

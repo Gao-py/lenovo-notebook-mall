@@ -36,7 +36,8 @@ public class OrderController {
     @PostMapping("/checkout")
     public ApiResponse<Order> checkout(Authentication auth, @RequestBody CheckoutRequest request) {
         try {
-            Order order = orderService.createOrder(auth.getName(), request.getAddress(), request.getPhone());
+            Order order = orderService.createOrder(auth.getName(), request.getAddress(),
+                    request.getPhone(), request.getUserCouponId());
             return ApiResponse.success(order);
         } catch (Exception e) {
             return ApiResponse.error(e.getMessage());
@@ -47,5 +48,6 @@ public class OrderController {
     public static class CheckoutRequest {
         private String address;
         private String phone;
+        private Long userCouponId;
     }
 }
