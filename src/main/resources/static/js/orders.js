@@ -10,16 +10,22 @@ async function loadOrders() {
         const response = await fetch('/api/orders/my', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+
+        if (!response.ok) {
+            throw new Error('请求失败');
+        }
+
         const result = await response.json();
         
         if (result.success) {
             displayOrders(result.data);
         } else {
-            alert('加载订单失败: ' + result.message);
+            console.error('订单加载失败:', result.message);
+            displayOrders([]);
         }
     } catch (error) {
         console.error('加载订单错误:', error);
-        alert('加载订单失败');
+        displayOrders([]);
     }
 }
 
@@ -44,31 +50,35 @@ async function displayOrders(orders) {
             let ratingHtml = '';
 
             if (order.status === 'PAID') {
-                const ratingRes = await fetch(`/api/ratings/order-item/${item.id}`);
-                const ratingData = await ratingRes.json();
+                try {
+                    const ratingRes = await fetch(`/api/ratings/order-item/${item.id}`);
+                    const ratingData = await ratingRes.json();
 
-                if (ratingData.success && ratingData.data) {
-                    const rating = ratingData.data;
-                    ratingHtml = `
-                        <div class="rating-section">
-                            <div class="rating-display">
-                                <span>您的评分：</span>
-                                <span class="stars">${'★'.repeat(rating.rating)}${'☆'.repeat(5 - rating.rating)}</span>
+                    if (ratingData.success && ratingData.data) {
+                        const rating = ratingData.data;
+                        ratingHtml = `
+                            <div class="rating-section">
+                                <div class="rating-display">
+                                    <span>您的评分：</span>
+                                    <span class="stars">${'★'.repeat(rating.rating)}${'☆'.repeat(5 - rating.rating)}</span>
+                                </div>
+                                ${rating.comment ? `<p style="margin-top: 8px; color: #666;">${rating.comment}</p>` : ''}
                             </div>
-                            ${rating.comment ? `<p style="margin-top: 8px; color: #666;">${rating.comment}</p>` : ''}
-                        </div>
-                    `;
-                } else {
-                    ratingHtml = `
-                        <div class="rating-section">
-                            <div style="font-weight: bold; margin-bottom: 10px;">为此商品评分</div>
-                            <div class="star-rating" id="stars-${item.id}">
-                                ${[1,2,3,4,5].map(i => `<span class="star" data-rating="${i}" onclick="selectRating(${item.id}, ${i})">☆</span>`).join('')}
+                        `;
+                    } else {
+                        ratingHtml = `
+                            <div class="rating-section">
+                                <div style="font-weight: bold; margin-bottom: 10px;">为此商品评分</div>
+                                <div class="star-rating" id="stars-${item.id}">
+                                    ${[1,2,3,4,5].map(i => `<span class="star" data-rating="${i}" onclick="selectRating(${item.id}, ${i})">☆</span>`).join('')}
+                                </div>
+                                <textarea class="rating-comment" id="comment-${item.id}" placeholder="写下您的评价（可选）" rows="3"></textarea>
+                                <button class="btn-primary" onclick="submitRating(${item.id})">提交评分</button>
                             </div>
-                            <textarea class="rating-comment" id="comment-${item.id}" placeholder="写下您的评价（可选）" rows="3"></textarea>
-                            <button class="btn-primary" onclick="submitRating(${item.id})">提交评分</button>
-                        </div>
-                    `;
+                        `;
+                    }
+                } catch (e) {
+                    console.error('加载评分失败:', e);
                 }
             }
 

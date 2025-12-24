@@ -2,6 +2,7 @@ package org.example.lenovonotebookmall.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class CommentResponse {
@@ -12,5 +13,7 @@ public class CommentResponse {
     private String avatar;
     private String content;
     private Long parentId;
+    private Integer rating;
     private LocalDateTime createTime;
+    private List<CommentResponse> replies;
 }

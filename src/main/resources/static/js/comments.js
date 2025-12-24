@@ -2,18 +2,13 @@ let currentProductId = null;
 
 async function loadComments(productId) {
     currentProductId = productId;
-    console.log('开始加载评论，商品ID:', productId);
 
     try {
         const response = await fetch(`/api/comments/product/${productId}`);
         const result = await response.json();
-        
-        console.log('评论数据:', result);
 
         if (result.success) {
             displayComments(result.data);
-        } else {
-            console.error('加载评论失败:', result.message);
         }
     } catch (error) {
         console.error('加载评论错误:', error);
@@ -23,94 +18,49 @@ async function loadComments(productId) {
 function displayComments(comments) {
     const commentsList = document.getElementById('commentsList');
 
-    console.log('显示评论，数量:', comments ? comments.length : 0);
-
     if (!comments || comments.length === 0) {
         commentsList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">暂无评价</p>';
         return;
     }
 
-    const topComments = comments.filter(c => !c.parentId);
-    commentsList.innerHTML = topComments.map(comment => renderComment(comment, comments, 0)).join('');
+    commentsList.innerHTML = comments.map(comment => renderComment(comment, null, 0)).join('');
 }
 
-function renderComment(comment, allComments, level) {
-    const replies = allComments.filter(c => c.parentId === comment.id);
-    const indent = level * 30;
+function renderComment(comment, parentUsername, level) {
     const username = comment.username || '匿名用户';
     const firstChar = username.charAt(0);
     const avatar = comment.avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23ddd'/%3E%3Ctext x='20' y='26' text-anchor='middle' font-size='18' fill='%23666'%3E${firstChar}%3C/text%3E%3C/svg%3E`;
 
+    const stars = comment.rating ? '★'.repeat(comment.rating) + '☆'.repeat(5 - comment.rating) : '';
+
+    const replyPrefix = level > 1 && parentUsername ? `<span style="color: #e60012; font-weight: 600;">@${parentUsername}</span> ` : '';
+    const marginLeft = level >= 1 ? 40 : 0;
+
+    const repliesHtml = comment.replies && comment.replies.length > 0 ?
+        comment.replies.map(reply => renderComment(reply, username, level + 1)).join('') : '';
+
     return `
-        <div class="comment-item" style="margin-left: ${indent}px;">
+        <div class="comment-item" style="margin-left: ${marginLeft}px; ${level >= 1 ? 'background: #f8f9fa; border-left: 3px solid #e60012;' : ''}">
             <div class="comment-header">
                 <span class="comment-user">
                     <img src="${avatar}" alt="头像" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 8px;">
                     ${username}
+                    ${stars ? `<span style="color: #ffd700; margin-left: 10px;">${stars}</span>` : ''}
                 </span>
                 <span class="comment-time">${formatTime(comment.createTime)}</span>
             </div>
-            <div class="comment-content">${comment.content}</div>
+            <div class="comment-content">${replyPrefix}${comment.content}</div>
             <div class="comment-actions">
-                <a href="javascript:void(0)" onclick="showReplyBox(${comment.id})">回复</a>
+                <a href="javascript:void(0)" onclick="showReplyBox(${comment.id}, '${username}')">回复</a>
             </div>
             <div class="reply-box" id="replyBox${comment.id}" style="display: none;">
-                <textarea id="replyContent${comment.id}" placeholder="写下你的回复..." rows="2"></textarea>
+                <textarea id="replyContent${comment.id}" placeholder="回复 @${username}..." rows="2"></textarea>
                 <button onclick="submitReply(${comment.id})">发表回复</button>
                 <button onclick="cancelReply(${comment.id})">取消</button>
             </div>
         </div>
-        ${replies.map(reply => renderComment(reply, allComments, level + 1)).join('')}
+        ${repliesHtml}
     `;
-}
-
-async function submitComment() {
-    const content = document.getElementById('commentContent').value.trim();
-    if (!content) {
-        alert('请输入评论内容');
-        return;
-    }
-
-    const token = localStorage.getItem('token') || '';
-
-    try {
-        const response = await fetch('/api/comments', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
-            },
-            body: JSON.stringify({
-                productId: parseInt(currentProductId),
-                content: content,
-                parentId: null
-            })
-        });
-
-        const result = await response.json();
-        console.log('发表评论结果:', result);
-
-        if (result.success) {
-            alert('评论发表成功');
-            document.getElementById('commentContent').value = '';
-            loadComments(currentProductId);
-        } else {
-            alert('发表失败: ' + (result.message || '未知错误'));
-        }
-    } catch (error) {
-        console.error('发表评论错误:', error);
-        alert('发表失败: ' + error.message);
-    }
-}
-
-function showReplyBox(commentId) {
-    document.querySelectorAll('.reply-box').forEach(box => box.style.display = 'none');
-    document.getElementById(`replyBox${commentId}`).style.display = 'block';
-}
-
-function cancelReply(commentId) {
-    document.getElementById(`replyBox${commentId}`).style.display = 'none';
-    document.getElementById(`replyContent${commentId}`).value = '';
 }
 
 async function submitReply(parentId) {
@@ -148,6 +98,18 @@ async function submitReply(parentId) {
         console.error('回复错误:', error);
         alert('回复失败: ' + error.message);
     }
+}
+
+function showReplyBox(commentId, username) {
+    document.querySelectorAll('.reply-box').forEach(box => box.style.display = 'none');
+    const replyBox = document.getElementById(`replyBox${commentId}`);
+    replyBox.style.display = 'block';
+    document.getElementById(`replyContent${commentId}`).placeholder = `回复 @${username}...`;
+}
+
+function cancelReply(commentId) {
+    document.getElementById(`replyBox${commentId}`).style.display = 'none';
+    document.getElementById(`replyContent${commentId}`).value = '';
 }
 
 function formatTime(timeStr) {

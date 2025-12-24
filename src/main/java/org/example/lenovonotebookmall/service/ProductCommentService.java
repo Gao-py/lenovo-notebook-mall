@@ -3,8 +3,10 @@ package org.example.lenovonotebookmall.service;
 import lombok.RequiredArgsConstructor;
 import org.example.lenovonotebookmall.dto.CommentRequest;
 import org.example.lenovonotebookmall.dto.CommentResponse;
+import org.example.lenovonotebookmall.entity.OrderRating;
 import org.example.lenovonotebookmall.entity.ProductComment;
 import org.example.lenovonotebookmall.entity.User;
+import org.example.lenovonotebookmall.repository.OrderRatingRepository;
 import org.example.lenovonotebookmall.repository.ProductCommentRepository;
 import org.example.lenovonotebookmall.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,13 @@ import java.util.stream.Collectors;
 public class ProductCommentService {
     private final ProductCommentRepository commentRepository;
     private final UserRepository userRepository;
-    
+    private final OrderRatingRepository orderRatingRepository;
+
     public void addComment(Long userId, CommentRequest request) {
+        if (request.getParentId() == null) {
+            throw new RuntimeException("只能回复评价，不能直接发表评论");
+        }
+
         ProductComment comment = new ProductComment();
         comment.setProductId(request.getProductId());
         comment.setUserId(userId);
@@ -27,25 +34,49 @@ public class ProductCommentService {
     }
     
     public List<CommentResponse> getCommentsByProductId(Long productId) {
-        List<ProductComment> comments = commentRepository.findByProductIdOrderByCreateTimeDesc(productId);
-        return comments.stream().map(this::toResponse).collect(Collectors.toList());
+        List<OrderRating> ratings = orderRatingRepository.findByProductId(productId).stream()
+            .filter(r -> r.getComment() != null && !r.getComment().trim().isEmpty())
+            .collect(Collectors.toList());
+
+        List<ProductComment> allReplies = commentRepository.findByProductIdOrderByCreateTimeDesc(productId);
+
+        return ratings.stream().map(rating -> {
+            CommentResponse response = new CommentResponse();
+            response.setId(rating.getId());
+            response.setProductId(productId);
+            response.setUserId(rating.getOrderItem().getOrder().getUser().getId());
+            response.setContent(rating.getComment());
+            response.setCreateTime(rating.getCreateTime());
+
+            User user = rating.getOrderItem().getOrder().getUser();
+            response.setUsername(user.getUsername());
+            response.setAvatar(user.getAvatar());
+            response.setRating(rating.getRating());
+
+            response.setReplies(buildReplyTree(rating.getId(), allReplies));
+            return response;
+        }).collect(Collectors.toList());
     }
 
-    private CommentResponse toResponse(ProductComment comment) {
-        CommentResponse response = new CommentResponse();
-        response.setId(comment.getId());
-        response.setProductId(comment.getProductId());
-        response.setUserId(comment.getUserId());
-        response.setContent(comment.getContent());
-        response.setParentId(comment.getParentId());
-        response.setCreateTime(comment.getCreateTime());
+    private List<CommentResponse> buildReplyTree(Long parentId, List<ProductComment> allReplies) {
+        return allReplies.stream()
+            .filter(r -> r.getParentId() != null && r.getParentId().equals(parentId))
+            .map(r -> {
+                CommentResponse reply = new CommentResponse();
+                reply.setId(r.getId());
+                reply.setContent(r.getContent());
+                reply.setCreateTime(r.getCreateTime());
+                reply.setParentId(r.getParentId());
 
-        userRepository.findById(comment.getUserId())
-                .ifPresent(user -> {
-                    response.setUsername(user.getUsername());
-                    response.setAvatar(user.getAvatar());
-                });
+                User replyUser = userRepository.findById(r.getUserId()).orElse(null);
+                if (replyUser != null) {
+                    reply.setUsername(replyUser.getUsername());
+                    reply.setAvatar(replyUser.getAvatar());
+                }
 
-        return response;
+                reply.setReplies(buildReplyTree(r.getId(), allReplies));
+                return reply;
+            })
+            .collect(Collectors.toList());
     }
 }

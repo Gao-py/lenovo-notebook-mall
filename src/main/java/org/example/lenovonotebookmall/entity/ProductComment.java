@@ -21,10 +21,15 @@ public class ProductComment {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
     
-    private Long parentId; // null表示顶级评论，有值表示回复
+    private Long parentId;
+
+    private Long orderRatingId; // 关联订单评价ID
     
     private LocalDateTime createTime = LocalDateTime.now();
     
     @Transient
-    private String username; // 用于返回时显示用户名
+    private String username;
+
+    @Transient
+    private Integer rating; // 评分（仅顶级评论有）
 }
