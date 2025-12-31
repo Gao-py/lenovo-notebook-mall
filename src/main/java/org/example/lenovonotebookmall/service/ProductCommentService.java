@@ -36,6 +36,7 @@ public class ProductCommentService {
     public List<CommentResponse> getCommentsByProductId(Long productId) {
         List<OrderRating> ratings = orderRatingRepository.findByProductId(productId).stream()
             .filter(r -> r.getComment() != null && !r.getComment().trim().isEmpty())
+            .filter(r -> r.getOrderItem() != null && r.getOrderItem().getOrder() != null && r.getOrderItem().getOrder().getUser() != null)
             .collect(Collectors.toList());
 
         List<ProductComment> allReplies = commentRepository.findByProductIdOrderByCreateTimeDesc(productId);
@@ -44,11 +45,11 @@ public class ProductCommentService {
             CommentResponse response = new CommentResponse();
             response.setId(rating.getId());
             response.setProductId(productId);
-            response.setUserId(rating.getOrderItem().getOrder().getUser().getId());
-            response.setContent(rating.getComment());
-            response.setCreateTime(rating.getCreateTime());
 
             User user = rating.getOrderItem().getOrder().getUser();
+            response.setUserId(user.getId());
+            response.setContent(rating.getComment());
+            response.setCreateTime(rating.getCreateTime());
             response.setUsername(user.getUsername());
             response.setAvatar(user.getAvatar());
             response.setRating(rating.getRating());

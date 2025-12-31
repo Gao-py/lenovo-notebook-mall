@@ -17,14 +17,21 @@ async function checkAuth() {
     const adminLink = document.querySelector('a[href="admin.html"]');
     const ordersLink = document.querySelector('a[href="orders.html"]');
 
+    if (!userNav) return;
+
     if (token && currentUser) {
         try {
             const res = await fetch('/api/profile', {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
+
+            if (!res.ok) {
+                throw new Error('认证失败');
+            }
+
             const data = await res.json();
 
-            if (data.success) {
+            if (data.success && data.data) {
                 const user = data.data;
                 const displayName = user.nickname || user.username;
                 const avatarUrl = user.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22white%22/%3E%3C/svg%3E';
@@ -37,26 +44,33 @@ async function checkAuth() {
                     </a>
                     <a href="#" onclick="logout()">退出</a>
                 `;
+
+                if (userRole === 'ADMIN') {
+                    if (cartLink) cartLink.style.display = 'none';
+                    if (ordersLink) ordersLink.style.display = 'none';
+                    if (adminLink) adminLink.style.display = 'inline-block';
+                } else {
+                    if (cartLink) cartLink.style.display = 'inline-block';
+                    if (ordersLink) ordersLink.style.display = 'inline-block';
+                    if (adminLink) adminLink.style.display = 'none';
+                }
+                return;
             }
         } catch (e) {
             console.error('获取用户信息失败', e);
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userRole');
+            token = null;
+            currentUser = null;
+            userRole = null;
         }
-
-        if (userRole === 'ADMIN') {
-            if (cartLink) cartLink.style.display = 'none';
-            if (ordersLink) ordersLink.style.display = 'none';
-            if (adminLink) adminLink.style.display = 'inline-block';
-        } else {
-            if (cartLink) cartLink.style.display = 'inline-block';
-            if (ordersLink) ordersLink.style.display = 'inline-block';
-            if (adminLink) adminLink.style.display = 'none';
-        }
-    } else {
-        userNav.innerHTML = `<a href="#" onclick="openModal()">登录/注册</a>`;
-        if (cartLink) cartLink.style.display = 'inline-block';
-        if (ordersLink) ordersLink.style.display = 'inline-block';
-        if (adminLink) adminLink.style.display = 'none';
     }
+
+    userNav.innerHTML = `<a href="#" onclick="openModal()">登录/注册</a>`;
+    if (cartLink) cartLink.style.display = 'inline-block';
+    if (ordersLink) ordersLink.style.display = 'inline-block';
+    if (adminLink) adminLink.style.display = 'none';
 }
 
 function requireAuth() {

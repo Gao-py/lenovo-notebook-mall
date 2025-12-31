@@ -21,17 +21,16 @@ public class ProductCommentController {
     @PostMapping
     public ApiResponse<Void> addComment(@RequestBody CommentRequest request, Authentication auth) {
         try {
-            Long userId = 1L; // 默认用户ID
-
-            if (auth != null && auth.getName() != null) {
-                // 通过用户名查找用户ID
-                User user = userRepository.findByUsername(auth.getName()).orElse(null);
-                if (user != null) {
-                    userId = user.getId();
-                }
+            if (auth == null || auth.getName() == null) {
+                return ApiResponse.error("请先登录");
             }
 
-            commentService.addComment(userId, request);
+            User user = userRepository.findByUsername(auth.getName()).orElse(null);
+            if (user == null) {
+                return ApiResponse.error("用户不存在");
+            }
+
+            commentService.addComment(user.getId(), request);
             return ApiResponse.success(null);
         } catch (Exception e) {
             e.printStackTrace();

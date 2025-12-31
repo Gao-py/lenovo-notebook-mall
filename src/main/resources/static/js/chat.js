@@ -15,7 +15,6 @@ async function loadChatHistory() {
         if (result.success) {
             const messagesDiv = document.getElementById('chatMessages');
 
-            // 只在消息数量变化时才更新
             if (result.data.length !== lastMessageCount) {
                 const shouldScrollToBottom = lastMessageCount === 0 ||
                     (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 100);
@@ -96,19 +95,34 @@ async function sendMessage() {
 }
 
 async function init() {
-    const profile = await fetch('/api/profile', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    }).then(r => r.json());
-    
-    currentUserId = profile.data.id;
-    isAdmin = profile.data.role === 'ADMIN';
-    
-    if (isAdmin) {
-        await loadCustomerList();
-    } else {
-        selectedCustomerId = profile.data.assignedAdminId;
-        loadChatHistory();
-        setInterval(loadChatHistory, 3000);
+    try {
+        const profile = await fetch('/api/profile', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }).then(r => r.json());
+
+        if (!profile.success || !profile.data) {
+            alert('请先登录');
+            location.href = 'index.html';
+            return;
+        }
+
+        currentUserId = profile.data.id;
+        isAdmin = profile.data.role === 'ADMIN';
+
+        if (isAdmin) {
+            await loadCustomerList();
+        } else {
+            if (!profile.data.assignedAdminId) {
+                alert('暂未分配客服，请稍后再试');
+                return;
+            }
+            selectedCustomerId = profile.data.assignedAdminId;
+            loadChatHistory();
+            setInterval(loadChatHistory, 3000);
+        }
+    } catch (error) {
+        console.error('初始化失败:', error);
+        alert('加载失败，请刷新页面重试');
     }
 }
 

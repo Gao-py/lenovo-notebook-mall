@@ -28,6 +28,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/captcha/**").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
                 .requestMatchers("/api/promotions/**").permitAll()
+                .requestMatchers("/api/comments/product/**").permitAll()
+                .requestMatchers("/api/ratings/product/*/average").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()
