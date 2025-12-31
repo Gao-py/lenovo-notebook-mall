@@ -50,7 +50,6 @@ function renderComment(comment, parentUsername, level) {
 
     let imagesHtml = '';
     if (comment.images && typeof comment.images === 'string' && comment.images.trim() !== '') {
-        // 特殊处理Base64图片分割
         const imageUrls = [];
         let remaining = comment.images;
 
@@ -58,16 +57,13 @@ function renderComment(comment, parentUsername, level) {
             const dataIndex = remaining.indexOf('data:image/');
             if (dataIndex === -1) break;
 
-            // 找到下一个data:image/的位置
             const nextDataIndex = remaining.indexOf('data:image/', dataIndex + 1);
 
             let imageUrl;
             if (nextDataIndex === -1) {
-                // 最后一张图片
                 imageUrl = remaining.substring(dataIndex).trim();
                 remaining = '';
             } else {
-                // 往回找逗号分隔符
                 let commaPos = nextDataIndex - 1;
                 while (commaPos > dataIndex && remaining[commaPos] !== ',') {
                     commaPos--;
@@ -76,7 +72,6 @@ function renderComment(comment, parentUsername, level) {
                 remaining = remaining.substring(commaPos + 1);
             }
 
-            // 验证图片URL有效性
             if (imageUrl.startsWith('data:image/')) {
                 const parts = imageUrl.split(',');
                 if (parts.length === 2 && parts[1].length > 100) {
@@ -132,7 +127,7 @@ function countAllReplies(replies) {
 }
 
 function toggleReplies(commentId) {
-    const repliesContainer = document.getElementById(`replies现在-${commentId}`);
+    const repliesContainer = document.getElementById(`replies-${commentId}`);
     const toggleBtn = document.getElementById(`toggle-${commentId}`);
     const replyCount = parseInt(repliesContainer.dataset.count);
 
