@@ -16,6 +16,7 @@ async function checkAuth() {
     const cartLink = document.querySelector('a[href="cart.html"]');
     const adminLink = document.querySelector('a[href="admin.html"]');
     const ordersLink = document.querySelector('a[href="orders.html"]');
+    const chatLink = document.querySelector('a[href="chat.html"]');
 
     if (!userNav) return;
 
@@ -49,10 +50,12 @@ async function checkAuth() {
                     if (cartLink) cartLink.style.display = 'none';
                     if (ordersLink) ordersLink.style.display = 'none';
                     if (adminLink) adminLink.style.display = 'inline-block';
+                    if (chatLink) chatLink.textContent = '客户消息';
                 } else {
                     if (cartLink) cartLink.style.display = 'inline-block';
                     if (ordersLink) ordersLink.style.display = 'inline-block';
                     if (adminLink) adminLink.style.display = 'none';
+                    if (chatLink) chatLink.textContent = '在线客服';
                 }
                 return;
             }
@@ -71,6 +74,7 @@ async function checkAuth() {
     if (cartLink) cartLink.style.display = 'inline-block';
     if (ordersLink) ordersLink.style.display = 'inline-block';
     if (adminLink) adminLink.style.display = 'none';
+    if (chatLink) chatLink.textContent = '在线客服';
 }
 
 function requireAuth() {
