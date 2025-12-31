@@ -16,4 +16,6 @@ public class CommentResponse {
     private Integer rating;
     private LocalDateTime createTime;
     private List<CommentResponse> replies;
+    private Long likeCount;
+    private Boolean isLiked;
 }

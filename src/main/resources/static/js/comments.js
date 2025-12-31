@@ -4,7 +4,9 @@ async function loadComments(productId) {
     currentProductId = productId;
 
     try {
-        const response = await fetch(`/api/comments/product/${productId}`);
+        const response = await fetch(`/api/comments/product/${productId}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
+        });
         const result = await response.json();
 
         if (result.success) {
@@ -44,6 +46,8 @@ function renderComment(comment, parentUsername, level) {
             ${comment.replies.map(reply => renderComment(reply, username, level + 1)).join('')}
         </div>` : '';
 
+    const likeIcon = comment.isLiked ? '❤️' : '🤍';
+
     return `
         <div class="comment-item" style="margin-left: ${marginLeft}px; ${level >= 1 ? 'background: #f8f9fa; border-left: 3px solid #e60012;' : ''}">
             <div class="comment-header">
@@ -57,6 +61,7 @@ function renderComment(comment, parentUsername, level) {
             <div class="comment-content">${replyPrefix}${comment.content}</div>
             <div class="comment-actions">
                 ${hasReplies && level === 0 ? `<a href="javascript:void(0)" onclick="toggleReplies(${comment.id})" id="toggle-${comment.id}">展开${replyCount}条回复 ▼</a>` : ''}
+                <a href="javascript:void(0)" onclick="toggleLike(${comment.id})" id="like-${comment.id}">${likeIcon} <span id="like-count-${comment.id}">${comment.likeCount || 0}</span></a>
                 <a href="javascript:void(0)" onclick="showReplyBox(${comment.id}, '${username}')">回复</a>
             </div>
             <div class="reply-box" id="replyBox${comment.id}" style="display: none;">
@@ -86,7 +91,6 @@ function toggleReplies(commentId) {
 
     if (repliesContainer.style.display === 'none') {
         repliesContainer.style.display = 'block';
-        // 递归展开所有子回复
         repliesContainer.querySelectorAll('.replies-container').forEach(subContainer => {
             subContainer.style.display = 'block';
         });
@@ -94,6 +98,50 @@ function toggleReplies(commentId) {
     } else {
         repliesContainer.style.display = 'none';
         toggleBtn.innerHTML = `展开${replyCount}条回复 ▼`;
+    }
+}
+
+async function toggleLike(commentId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('请先登录');
+        return;
+    }
+
+    // 记录当前展开的评论ID
+    const expandedComments = [];
+    document.querySelectorAll('.replies-container[style*="display: block"]').forEach(container => {
+        const id = container.id.replace('replies-', '');
+        expandedComments.push(id);
+    });
+
+    try {
+        const response = await fetch(`/api/comments/${commentId}/like`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            await loadComments(currentProductId);
+
+            // 恢复展开状态
+            expandedComments.forEach(id => {
+                const container = document.getElementById(`replies-${id}`);
+                const toggleBtn = document.getElementById(`toggle-${id}`);
+                if (container && toggleBtn) {
+                    container.style.display = 'block';
+                    container.querySelectorAll('.replies-container').forEach(subContainer => {
+                        subContainer.style.display = 'block';
+                    });
+                    toggleBtn.innerHTML = `收起回复 ▲`;
+                }
+            });
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('点赞错误:', error);
     }
 }
 

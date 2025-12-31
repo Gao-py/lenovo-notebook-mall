@@ -39,10 +39,35 @@ public class ProductCommentController {
     }
     
     @GetMapping("/product/{productId}")
-    public ApiResponse<List<CommentResponse>> getComments(@PathVariable Long productId) {
+    public ApiResponse<List<CommentResponse>> getComments(@PathVariable Long productId, Authentication auth) {
         try {
-            List<CommentResponse> comments = commentService.getCommentsByProductId(productId);
+            Long userId = null;
+            if (auth != null && auth.getName() != null) {
+                User user = userRepository.findByUsername(auth.getName()).orElse(null);
+                if (user != null) userId = user.getId();
+            }
+            List<CommentResponse> comments = commentService.getCommentsByProductId(productId, userId);
             return ApiResponse.success(comments);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{commentId}/like")
+    public ApiResponse<Void> toggleLike(@PathVariable Long commentId, Authentication auth) {
+        try {
+            if (auth == null || auth.getName() == null) {
+                return ApiResponse.error("请先登录");
+            }
+
+            User user = userRepository.findByUsername(auth.getName()).orElse(null);
+            if (user == null) {
+                return ApiResponse.error("用户不存在");
+            }
+
+            commentService.toggleLike(commentId, user.getId());
+            return ApiResponse.success(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

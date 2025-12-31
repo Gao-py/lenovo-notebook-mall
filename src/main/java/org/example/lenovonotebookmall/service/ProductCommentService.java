@@ -3,13 +3,16 @@ package org.example.lenovonotebookmall.service;
 import lombok.RequiredArgsConstructor;
 import org.example.lenovonotebookmall.dto.CommentRequest;
 import org.example.lenovonotebookmall.dto.CommentResponse;
+import org.example.lenovonotebookmall.entity.CommentLike;
 import org.example.lenovonotebookmall.entity.OrderRating;
 import org.example.lenovonotebookmall.entity.ProductComment;
 import org.example.lenovonotebookmall.entity.User;
+import org.example.lenovonotebookmall.repository.CommentLikeRepository;
 import org.example.lenovonotebookmall.repository.OrderRatingRepository;
 import org.example.lenovonotebookmall.repository.ProductCommentRepository;
 import org.example.lenovonotebookmall.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +22,7 @@ public class ProductCommentService {
     private final ProductCommentRepository commentRepository;
     private final UserRepository userRepository;
     private final OrderRatingRepository orderRatingRepository;
+    private final CommentLikeRepository likeRepository;
 
     public void addComment(Long userId, CommentRequest request) {
         if (request.getParentId() == null) {
@@ -33,7 +37,7 @@ public class ProductCommentService {
         commentRepository.save(comment);
     }
     
-    public List<CommentResponse> getCommentsByProductId(Long productId) {
+    public List<CommentResponse> getCommentsByProductId(Long productId, Long currentUserId) {
         List<OrderRating> ratings = orderRatingRepository.findByProductId(productId).stream()
             .filter(r -> r.getComment() != null && !r.getComment().trim().isEmpty())
             .filter(r -> r.getOrderItem() != null && r.getOrderItem().getOrder() != null && r.getOrderItem().getOrder().getUser() != null)
@@ -53,13 +57,15 @@ public class ProductCommentService {
             response.setUsername(user.getUsername());
             response.setAvatar(user.getAvatar());
             response.setRating(rating.getRating());
+            response.setLikeCount(likeRepository.countByCommentId(rating.getId()));
+            response.setIsLiked(currentUserId != null && likeRepository.findByCommentIdAndUserId(rating.getId(), currentUserId).isPresent());
 
-            response.setReplies(buildReplyTree(rating.getId(), allReplies));
+            response.setReplies(buildReplyTree(rating.getId(), allReplies, currentUserId));
             return response;
         }).collect(Collectors.toList());
     }
 
-    private List<CommentResponse> buildReplyTree(Long parentId, List<ProductComment> allReplies) {
+    private List<CommentResponse> buildReplyTree(Long parentId, List<ProductComment> allReplies, Long currentUserId) {
         return allReplies.stream()
             .filter(r -> r.getParentId() != null && r.getParentId().equals(parentId))
             .map(r -> {
@@ -68,6 +74,8 @@ public class ProductCommentService {
                 reply.setContent(r.getContent());
                 reply.setCreateTime(r.getCreateTime());
                 reply.setParentId(r.getParentId());
+                reply.setLikeCount(likeRepository.countByCommentId(r.getId()));
+                reply.setIsLiked(currentUserId != null && likeRepository.findByCommentIdAndUserId(r.getId(), currentUserId).isPresent());
 
                 User replyUser = userRepository.findById(r.getUserId()).orElse(null);
                 if (replyUser != null) {
@@ -75,9 +83,23 @@ public class ProductCommentService {
                     reply.setAvatar(replyUser.getAvatar());
                 }
 
-                reply.setReplies(buildReplyTree(r.getId(), allReplies));
+                reply.setReplies(buildReplyTree(r.getId(), allReplies, currentUserId));
                 return reply;
             })
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void toggleLike(Long commentId, Long userId) {
+        likeRepository.findByCommentIdAndUserId(commentId, userId)
+            .ifPresentOrElse(
+                like -> likeRepository.deleteByCommentIdAndUserId(commentId, userId),
+                () -> {
+                    CommentLike like = new CommentLike();
+                    like.setCommentId(commentId);
+                    like.setUserId(userId);
+                    likeRepository.save(like);
+                }
+            );
     }
 }
