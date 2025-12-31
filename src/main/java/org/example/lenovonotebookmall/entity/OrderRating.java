@@ -22,5 +22,8 @@ public class OrderRating {
     @Column(length = 500)
     private String comment;
     
+    @Column(columnDefinition = "LONGTEXT")
+    private String images;
+
     private LocalDateTime createTime = LocalDateTime.now();
 }

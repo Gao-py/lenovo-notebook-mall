@@ -7,4 +7,5 @@ public class RatingRequest {
     private Long orderItemId;
     private Integer rating;
     private String comment;
+    private String images;
 }

@@ -18,4 +18,5 @@ public class CommentResponse {
     private List<CommentResponse> replies;
     private Long likeCount;
     private Boolean isLiked;
+    private String images;
 }

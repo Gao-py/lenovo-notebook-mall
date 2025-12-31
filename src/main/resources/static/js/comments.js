@@ -48,6 +48,52 @@ function renderComment(comment, parentUsername, level) {
 
     const likeIcon = comment.isLiked ? '❤️' : '🤍';
 
+    let imagesHtml = '';
+    if (comment.images && typeof comment.images === 'string' && comment.images.trim() !== '') {
+        // 特殊处理Base64图片分割
+        const imageUrls = [];
+        let remaining = comment.images;
+
+        while (remaining.length > 0) {
+            const dataIndex = remaining.indexOf('data:image/');
+            if (dataIndex === -1) break;
+
+            // 找到下一个data:image/的位置
+            const nextDataIndex = remaining.indexOf('data:image/', dataIndex + 1);
+
+            let imageUrl;
+            if (nextDataIndex === -1) {
+                // 最后一张图片
+                imageUrl = remaining.substring(dataIndex).trim();
+                remaining = '';
+            } else {
+                // 往回找逗号分隔符
+                let commaPos = nextDataIndex - 1;
+                while (commaPos > dataIndex && remaining[commaPos] !== ',') {
+                    commaPos--;
+                }
+                imageUrl = remaining.substring(dataIndex, commaPos).trim();
+                remaining = remaining.substring(commaPos + 1);
+            }
+
+            // 验证图片URL有效性
+            if (imageUrl.startsWith('data:image/')) {
+                const parts = imageUrl.split(',');
+                if (parts.length === 2 && parts[1].length > 100) {
+                    imageUrls.push(imageUrl);
+                }
+            }
+        }
+
+        if (imageUrls.length > 0) {
+            imagesHtml = `<div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+                ${imageUrls.map(img => 
+                    `<img src="${img}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #e0e0e0;" onclick="window.open('${img}', '_blank')" onerror="this.style.display='none'">`
+                ).join('')}
+            </div>`;
+        }
+    }
+
     return `
         <div class="comment-item" style="margin-left: ${marginLeft}px; ${level >= 1 ? 'background: #f8f9fa; border-left: 3px solid #e60012;' : ''}">
             <div class="comment-header">
@@ -59,6 +105,7 @@ function renderComment(comment, parentUsername, level) {
                 <span class="comment-time">${formatTime(comment.createTime)}</span>
             </div>
             <div class="comment-content">${replyPrefix}${comment.content}</div>
+            ${imagesHtml}
             <div class="comment-actions">
                 ${hasReplies && level === 0 ? `<a href="javascript:void(0)" onclick="toggleReplies(${comment.id})" id="toggle-${comment.id}">展开${replyCount}条回复 ▼</a>` : ''}
                 <a href="javascript:void(0)" onclick="toggleLike(${comment.id})" id="like-${comment.id}">${likeIcon} <span id="like-count-${comment.id}">${comment.likeCount || 0}</span></a>
@@ -85,7 +132,7 @@ function countAllReplies(replies) {
 }
 
 function toggleReplies(commentId) {
-    const repliesContainer = document.getElementById(`replies-${commentId}`);
+    const repliesContainer = document.getElementById(`replies现在-${commentId}`);
     const toggleBtn = document.getElementById(`toggle-${commentId}`);
     const replyCount = parseInt(repliesContainer.dataset.count);
 
@@ -108,7 +155,6 @@ async function toggleLike(commentId) {
         return;
     }
 
-    // 记录当前展开的评论ID
     const expandedComments = [];
     document.querySelectorAll('.replies-container[style*="display: block"]').forEach(container => {
         const id = container.id.replace('replies-', '');
@@ -125,7 +171,6 @@ async function toggleLike(commentId) {
         if (result.success) {
             await loadComments(currentProductId);
 
-            // 恢复展开状态
             expandedComments.forEach(id => {
                 const container = document.getElementById(`replies-${id}`);
                 const toggleBtn = document.getElementById(`toggle-${id}`);

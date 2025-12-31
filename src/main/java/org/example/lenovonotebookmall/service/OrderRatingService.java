@@ -36,7 +36,8 @@ public class OrderRatingService {
         rating.setOrderItem(orderItem);
         rating.setRating(request.getRating());
         rating.setComment(request.getComment());
-        
+        rating.setImages(request.getImages());
+
         return ratingRepository.save(rating);
     }
     

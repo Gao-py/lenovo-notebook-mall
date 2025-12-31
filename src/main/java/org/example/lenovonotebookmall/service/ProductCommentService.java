@@ -57,6 +57,7 @@ public class ProductCommentService {
             response.setUsername(user.getUsername());
             response.setAvatar(user.getAvatar());
             response.setRating(rating.getRating());
+            response.setImages(rating.getImages());
             response.setLikeCount(likeRepository.countByCommentId(rating.getId()));
             response.setIsLiked(currentUserId != null && likeRepository.findByCommentIdAndUserId(rating.getId(), currentUserId).isPresent());
 
