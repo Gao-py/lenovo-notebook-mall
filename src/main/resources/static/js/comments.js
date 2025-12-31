@@ -36,8 +36,13 @@ function renderComment(comment, parentUsername, level) {
     const replyPrefix = level > 1 && parentUsername ? `<span style="color: #e60012; font-weight: 600;">@${parentUsername}</span> ` : '';
     const marginLeft = level >= 1 ? 40 : 0;
 
-    const repliesHtml = comment.replies && comment.replies.length > 0 ?
-        comment.replies.map(reply => renderComment(reply, username, level + 1)).join('') : '';
+    const hasReplies = comment.replies && comment.replies.length > 0;
+    const replyCount = hasReplies ? countAllReplies(comment.replies) : 0;
+
+    const repliesHtml = hasReplies ?
+        `<div class="replies-container" id="replies-${comment.id}" style="display: none;" data-count="${replyCount}">
+            ${comment.replies.map(reply => renderComment(reply, username, level + 1)).join('')}
+        </div>` : '';
 
     return `
         <div class="comment-item" style="margin-left: ${marginLeft}px; ${level >= 1 ? 'background: #f8f9fa; border-left: 3px solid #e60012;' : ''}">
@@ -51,6 +56,7 @@ function renderComment(comment, parentUsername, level) {
             </div>
             <div class="comment-content">${replyPrefix}${comment.content}</div>
             <div class="comment-actions">
+                ${hasReplies && level === 0 ? `<a href="javascript:void(0)" onclick="toggleReplies(${comment.id})" id="toggle-${comment.id}">展开${replyCount}条回复 ▼</a>` : ''}
                 <a href="javascript:void(0)" onclick="showReplyBox(${comment.id}, '${username}')">回复</a>
             </div>
             <div class="reply-box" id="replyBox${comment.id}" style="display: none;">
@@ -61,6 +67,34 @@ function renderComment(comment, parentUsername, level) {
         </div>
         ${repliesHtml}
     `;
+}
+
+function countAllReplies(replies) {
+    let count = replies.length;
+    replies.forEach(reply => {
+        if (reply.replies && reply.replies.length > 0) {
+            count += countAllReplies(reply.replies);
+        }
+    });
+    return count;
+}
+
+function toggleReplies(commentId) {
+    const repliesContainer = document.getElementById(`replies-${commentId}`);
+    const toggleBtn = document.getElementById(`toggle-${commentId}`);
+    const replyCount = parseInt(repliesContainer.dataset.count);
+
+    if (repliesContainer.style.display === 'none') {
+        repliesContainer.style.display = 'block';
+        // 递归展开所有子回复
+        repliesContainer.querySelectorAll('.replies-container').forEach(subContainer => {
+            subContainer.style.display = 'block';
+        });
+        toggleBtn.innerHTML = `收起回复 ▲`;
+    } else {
+        repliesContainer.style.display = 'none';
+        toggleBtn.innerHTML = `展开${replyCount}条回复 ▼`;
+    }
 }
 
 async function submitReply(parentId) {
@@ -117,11 +151,11 @@ function formatTime(timeStr) {
     const date = new Date(timeStr);
     const now = new Date();
     const diff = now - date;
-    
+
     if (diff < 60000) return '刚刚';
     if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
     if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
     if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
-    
+
     return date.toLocaleDateString('zh-CN');
 }
