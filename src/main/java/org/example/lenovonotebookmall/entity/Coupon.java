@@ -26,8 +26,6 @@ public class Coupon {
     private Integer pointsCost;
     
     private Integer stock;
-    
-    private Integer validHours;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

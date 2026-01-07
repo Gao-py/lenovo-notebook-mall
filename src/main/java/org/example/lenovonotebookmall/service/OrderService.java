@@ -81,10 +81,6 @@ public class OrderService {
                 throw new RuntimeException("无权使用此优惠券");
             }
 
-            if (userCoupon.getExpiryTime() != null && LocalDateTime.now().isAfter(userCoupon.getExpiryTime())) {
-                throw new RuntimeException("优惠券已过期");
-            }
-
             Coupon coupon = userCoupon.getCoupon();
 
             if (coupon.getProduct() != null) {

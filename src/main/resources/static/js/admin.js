@@ -220,29 +220,29 @@ async function showAddPromotion() {
             <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
             <h2>添加促销</h2>
             <form id="promotionForm">
-                <input type="text" id="promoName" placeholder="促销名称" required>
-                <select id="promoType" required onchange="togglePromoFields()">
+                <input type="text" id="promoName" placeholder="促销名称" required style="width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <select id="promoType" required onchange="togglePromoFields()" style="width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
                     <option value="">选择类型</option>
                     <option value="DISCOUNT">单品折扣</option>
                     <option value="FULL_REDUCTION">满减</option>
                     <option value="CATEGORY_DISCOUNT">分类折扣</option>
                 </select>
-                <select id="promoProduct" style="display:none;">
+                <select id="promoProduct" style="display:none; width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
                     <option value="">选择商品</option>
                     ${products.map(p => `<option value="${p.id}">${p.name} - ${p.model}</option>`).join('')}
                 </select>
-                <select id="promoCategory" style="display:none;">
+                <select id="promoCategory" style="display:none; width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
                     <option value="">选择分类</option>
                     <option value="ThinkPad">ThinkPad</option>
                     <option value="YOGA">YOGA</option>
                     <option value="拯救者">拯救者</option>
                     <option value="小新">小新</option>
                 </select>
-                <input type="number" id="promoDiscount" placeholder="折扣百分比(0-100)" min="0" max="100" style="display:none;">
-                <input type="number" id="promoMinAmount" placeholder="最低金额" step="0.01" style="display:none;">
-                <input type="number" id="promoDiscountAmount" placeholder="减免金额" step="0.01" style="display:none;">
-                <input type="datetime-local" id="promoStart" required>
-                <input type="datetime-local" id="promoEnd" required>
+                <input type="number" id="promoDiscount" placeholder="折扣百分比(0-100)" min="0" max="100" style="display:none; width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <input type="number" id="promoMinAmount" placeholder="最低金额" step="0.01" style="display:none; width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <input type="number" id="promoDiscountAmount" placeholder="减免金额" step="0.01" style="display:none; width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <input type="datetime-local" id="promoStart" required style="width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <input type="datetime-local" id="promoEnd" required style="width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
                 <button type="submit" class="btn-primary">保存</button>
             </form>
         </div>
@@ -323,6 +323,8 @@ async function loadCoupons() {
     const data = await res.json();
     const list = data.data || [];
 
+    console.log('优惠券数据:', list); // 调试信息
+
     const typeMap = {
         'DISCOUNT': '折扣券',
         'CASH': '代金券',
@@ -339,25 +341,33 @@ async function loadCoupons() {
             value = '满¥' + c.minAmount + '减¥' + c.discountAmount;
         }
 
-        const validFrom = c.validFrom ? new Date(c.validFrom).toLocaleDateString('zh-CN') : '无限制';
-        const validUntil = c.validUntil ? new Date(c.validUntil).toLocaleDateString('zh-CN') : '无限制';
+        // 改进的库存显示逻辑
+        let stockDisplay;
+        if (c.stock === null || c.stock === undefined || c.stock === '') {
+            stockDisplay = '无限';
+        } else if (typeof c.stock === 'number') {
+            stockDisplay = c.stock;
+        } else if (typeof c.stock === 'string') {
+            const stockNum = parseInt(c.stock);
+            stockDisplay = isNaN(stockNum) ? '无限' : stockNum;
+        } else {
+            stockDisplay = '无限';
+        }
 
         return `
-            <tr>
-                <td>${c.id}</td>
-                <td>${c.name}</td>
-                <td>${value}</td>
-                <td>${c.pointsCost}</td>
-                <td>${c.stock !== null ? c.stock : '无限'}</td>
-                <td>${typeMap[c.type]}</td>
-                <td>${validFrom}</td>
-                <td>${validUntil}</td>
-                <td>
-                    <button class="edit-btn" onclick="editCoupon(${c.id})">编辑</button>
-                    <button class="delete-btn" onclick="deleteCoupon(${c.id})">删除</button>
-                </td>
-            </tr>
-        `;
+        <tr>
+            <td>${c.id}</td>
+            <td>${c.name}</td>
+            <td>${value}</td>
+            <td>${c.pointsCost}</td>
+            <td>${stockDisplay}</td>
+            <td>${typeMap[c.type]}</td>
+            <td>
+                <button class="edit-btn" onclick="editCoupon(${c.id})">编辑</button>
+                <button class="delete-btn" onclick="deleteCoupon(${c.id})">删除</button>
+            </td>
+        </tr>
+    `;
     }).join('');
 }
 
@@ -379,7 +389,10 @@ async function editCoupon(id) {
         document.getElementById('couponName').value = coupon.name;
         document.getElementById('couponType').value = coupon.type;
         document.getElementById('pointsCost').value = coupon.pointsCost;
-        document.getElementById('stock').value = coupon.stock || '';
+
+        // 修复：使用正确的 id couponStock
+        const stockValue = coupon.stock === null || coupon.stock === undefined || coupon.stock === '' ? '' : coupon.stock;
+        document.getElementById('couponStock').value = stockValue;
 
         if (coupon.type === 'DISCOUNT') {
             document.getElementById('discountPercent').value = coupon.discountPercent;
@@ -390,59 +403,12 @@ async function editCoupon(id) {
             document.getElementById('discountAmount').value = coupon.discountAmount;
         }
 
-        if (coupon.validFrom) {
-            document.getElementById('validFrom').value = new Date(coupon.validFrom).toISOString().slice(0, 16);
-        }
-        if (coupon.validUntil) {
-            document.getElementById('validUntil').value = new Date(coupon.validUntil).toISOString().slice(0, 16);
-        }
-
         toggleCouponFields();
         document.getElementById('couponModal').classList.add('show');
     }
 }
 
-async function deleteCoupon(id) {
-    if (!confirm('确定删除该优惠券吗？')) return;
-
-    const res = await fetch(`/api/points-mall/admin/coupons/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + getToken() }
-    });
-
-    if (res.ok) {
-        alert('删除成功');
-        loadCoupons();
-    } else {
-        alert('删除失败');
-    }
-}
-
-function closeCouponModal() {
-    document.getElementById('couponModal').classList.remove('show');
-}
-
-function toggleCouponFields() {
-    const type = document.getElementById('couponType').value;
-
-    document.getElementById('discountPercent').style.display = 'none';
-    document.getElementById('discountAmount').style.display = 'none';
-    document.getElementById('minAmount').style.display = 'none';
-
-    if (type === 'DISCOUNT') {
-        document.getElementById('discountPercent').style.display = 'block';
-        document.getElementById('discountPercent').required = true;
-    } else if (type === 'CASH') {
-        document.getElementById('discountAmount').style.display = 'block';
-        document.getElementById('discountAmount').required = true;
-    } else if (type === 'FULL_REDUCTION') {
-        document.getElementById('minAmount').style.display = 'block';
-        document.getElementById('discountAmount').style.display = 'block';
-        document.getElementById('minAmount').required = true;
-        document.getElementById('discountAmount').required = true;
-    }
-}
-
+// 修改表单提交逻辑
 document.getElementById('couponForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -453,18 +419,33 @@ document.getElementById('couponForm').addEventListener('submit', async function(
         name: document.getElementById('couponName').value,
         type: type,
         pointsCost: parseInt(document.getElementById('pointsCost').value),
-        stock: document.getElementById('stock').value ? parseInt(document.getElementById('stock').value) : null,
-        validFrom: document.getElementById('validFrom').value || null,
-        validUntil: document.getElementById('validUntil').value || null
+        // 修复：使用正确的 id couponStock
+        stock: document.getElementById('couponStock').value ? parseInt(document.getElementById('couponStock').value) : null
     };
 
     if (type === 'DISCOUNT') {
-        payload.discountPercent = parseFloat(document.getElementById('discountPercent').value);
+        const percent = document.getElementById('discountPercent').value;
+        if (!percent) {
+            alert('请输入折扣百分比');
+            return;
+        }
+        payload.discountPercent = parseFloat(percent);
     } else if (type === 'CASH') {
-        payload.discountAmount = parseFloat(document.getElementById('discountAmount').value);
+        const amount = document.getElementById('discountAmount').value;
+        if (!amount) {
+            alert('请输入减免金额');
+            return;
+        }
+        payload.discountAmount = parseFloat(amount);
     } else if (type === 'FULL_REDUCTION') {
-        payload.minAmount = parseFloat(document.getElementById('minAmount').value);
-        payload.discountAmount = parseFloat(document.getElementById('discountAmount').value);
+        const min = document.getElementById('minAmount').value;
+        const amount = document.getElementById('discountAmount').value;
+        if (!min || !amount) {
+            alert('请输入最低消费金额和减免金额');
+            return;
+        }
+        payload.minAmount = parseFloat(min);
+        payload.discountAmount = parseFloat(amount);
     }
 
     const url = id ? `/api/points-mall/admin/coupons/${id}` : '/api/points-mall/admin/coupons';
@@ -488,5 +469,67 @@ document.getElementById('couponForm').addEventListener('submit', async function(
         alert('保存失败: ' + data.message);
     }
 });
+
+async function deleteCoupon(id) {
+    if (!confirm('确定删除该优惠券吗？')) return;
+
+    const res = await fetch(`/api/points-mall/admin/coupons/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        alert('删除成功');
+        loadCoupons();
+    } else {
+        alert('删除失败: ' + data.message);
+    }
+}
+
+// 修改关闭模态框函数
+function closeCouponModal() {
+    document.getElementById('couponModal').classList.remove('show');
+    document.getElementById('couponForm').reset();
+    document.getElementById('couponId').value = '';
+    document.getElementById('discountPercentGroup').style.display = 'none';
+    document.getElementById('discountAmountGroup').style.display = 'none';
+    document.getElementById('minAmountGroup').style.display = 'none';
+}
+
+// 修改 toggleCouponFields 函数，支持新的表单结构
+function toggleCouponFields() {
+    const type = document.getElementById('couponType').value;
+
+    const discountPercentGroup = document.getElementById('discountPercentGroup');
+    const discountAmountGroup = document.getElementById('discountAmountGroup');
+    const minAmountGroup = document.getElementById('minAmountGroup');
+
+    // 重置所有字段组
+    discountPercentGroup.style.display = 'none';
+    discountAmountGroup.style.display = 'none';
+    minAmountGroup.style.display = 'none';
+
+    // 重置输入框
+    document.getElementById('discountPercent').value = '';
+    document.getElementById('discountPercent').required = false;
+    document.getElementById('discountAmount').value = '';
+    document.getElementById('discountAmount').required = false;
+    document.getElementById('minAmount').value = '';
+    document.getElementById('minAmount').required = false;
+
+    if (type === 'DISCOUNT') {
+        discountPercentGroup.style.display = 'block';
+        document.getElementById('discountPercent').required = true;
+    } else if (type === 'CASH') {
+        discountAmountGroup.style.display = 'block';
+        document.getElementById('discountAmount').required = true;
+    } else if (type === 'FULL_REDUCTION') {
+        minAmountGroup.style.display = 'block';
+        discountAmountGroup.style.display = 'block';
+        document.getElementById('minAmount').required = true;
+        document.getElementById('discountAmount').required = true;
+    }
+}
 
 showSection('products');

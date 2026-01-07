@@ -23,13 +23,5 @@ public class UserCoupon {
     private Boolean isUsed = false;
     
     private LocalDateTime obtainTime = LocalDateTime.now();
-    private LocalDateTime expiryTime;
     private LocalDateTime usedTime;
-
-    @PrePersist
-    public void calculateExpiry() {
-        if (coupon != null && coupon.getValidHours() != null) {
-            expiryTime = obtainTime.plusHours(coupon.getValidHours());
-        }
-    }
 }
