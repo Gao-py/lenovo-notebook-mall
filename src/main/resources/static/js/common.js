@@ -13,12 +13,17 @@ function goToCart() {
 
 async function checkAuth() {
     const userNav = document.getElementById('userNav');
-    const cartLink = document.querySelector('a[href="cart.html"]');
-    const adminLink = document.querySelector('a[href="admin.html"]');
-    const ordersLink = document.querySelector('a[href="orders.html"]');
-    const chatLink = document.querySelector('a[href="chat.html"]');
-
     if (!userNav) return;
+
+    // 获取所有导航链接
+    const aiLink = document.querySelector('a[href="ai-assistant.html"]');
+    const cartLink = document.querySelector('a[href="cart.html"]');
+    const ordersLink = document.querySelector('a[href="orders.html"]');
+    const addressLink = document.querySelector('a[href="address.html"]');
+    const chatLink = document.querySelector('a[href="chat.html"]');
+    const adminLink = document.querySelector('a[href="admin.html"]');
+    const promotionsLink = document.querySelector('a[href="promotions.html"]');
+    const pointsMallLink = document.querySelector('a[href="points-mall.html"]');
 
     if (token && currentUser) {
         try {
@@ -36,7 +41,7 @@ async function checkAuth() {
                 const user = data.data;
                 const displayName = user.nickname || user.username;
                 const avatarUrl = user.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect width=%2232%22 height=%2232%22 fill=%22white%22/%3E%3C/svg%3E';
-                let roleText = userRole === 'ADMIN' ? '(管理员)' : '(用户)';
+                let roleText = userRole === 'ADMIN' ? '(管理员)' : '';
 
                 userNav.innerHTML = `
                     <a href="profile.html" style="color: white; display: flex; align-items: center; gap: 8px;">
@@ -46,17 +51,35 @@ async function checkAuth() {
                     <a href="#" onclick="logout()">退出</a>
                 `;
 
+                // 根据角色显示/隐藏导航项
                 if (userRole === 'ADMIN') {
+                    // 管理员：隐藏购物相关，显示管理功能
                     if (cartLink) cartLink.style.display = 'none';
                     if (ordersLink) ordersLink.style.display = 'none';
+                    if (addressLink) addressLink.style.display = 'none';
+                    if (pointsMallLink) pointsMallLink.style.display = 'none';
                     if (adminLink) adminLink.style.display = 'inline-block';
-                    if (chatLink) chatLink.textContent = '客户消息';
+                    if (chatLink) {
+                        chatLink.textContent = '客户消息';
+                        chatLink.style.display = 'inline-block';
+                    }
                 } else {
+                    // 普通用户：显示购物相关，隐藏管理功能
                     if (cartLink) cartLink.style.display = 'inline-block';
                     if (ordersLink) ordersLink.style.display = 'inline-block';
+                    if (addressLink) addressLink.style.display = 'inline-block';
+                    if (pointsMallLink) pointsMallLink.style.display = 'inline-block';
                     if (adminLink) adminLink.style.display = 'none';
-                    if (chatLink) chatLink.textContent = '在线客服';
+                    if (chatLink) {
+                        chatLink.textContent = '在线客服';
+                        chatLink.style.display = 'inline-block';
+                    }
                 }
+
+                // AI助手和促销活动对所有人可见
+                if (aiLink) aiLink.style.display = 'inline-block';
+                if (promotionsLink) promotionsLink.style.display = 'inline-block';
+
                 return;
             }
         } catch (e) {
@@ -70,17 +93,29 @@ async function checkAuth() {
         }
     }
 
+    // 未登录状态
     userNav.innerHTML = `<a href="#" onclick="openModal()">登录/注册</a>`;
+
+    // 显示所有公开导航项
+    if (aiLink) aiLink.style.display = 'inline-block';
+    if (promotionsLink) promotionsLink.style.display = 'inline-block';
     if (cartLink) cartLink.style.display = 'inline-block';
     if (ordersLink) ordersLink.style.display = 'inline-block';
+    if (chatLink) {
+        chatLink.textContent = '在线客服';
+        chatLink.style.display = 'inline-block';
+    }
+
+    // 隐藏需要登录的功能
+    if (addressLink) addressLink.style.display = 'none';
+    if (pointsMallLink) pointsMallLink.style.display = 'none';
     if (adminLink) adminLink.style.display = 'none';
-    if (chatLink) chatLink.textContent = '在线客服';
 }
 
 function requireAuth() {
     if (!token) {
         alert('请先登录');
-        location.href = 'index.html';
+        openModal();
         return false;
     }
     return true;

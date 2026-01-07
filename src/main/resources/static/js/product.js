@@ -53,7 +53,9 @@ async function loadSameModelProducts(model) {
 }
 
 function displayProduct(p) {
-    document.getElementById('productImg').src = p.imageUrl || 'https://via.placeholder.com/500x400?text=Lenovo';
+    const placeholderImage = p.imageUrl || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="500" height="400"%3E%3Crect width="500" height="400" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="24" fill="%23999"%3ELenovo%3C/text%3E%3C/svg%3E';
+
+    document.getElementById('productImg').src = placeholderImage;
     document.getElementById('productName').textContent = p.name;
     document.getElementById('productModel').textContent = p.model;
     document.getElementById('productPrice').textContent = '¥' + p.price;

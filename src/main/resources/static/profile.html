@@ -5,6 +5,551 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人信息 - 联想笔记本商城</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 简洁素色风格 */
+        .profile-container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .profile-header p {
+            margin: 8px 0 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 个人信息卡片 - 整合VIP信息 */
+        .profile-card {
+            margin: 20px 30px;
+            padding: 25px;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .profile-header-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 25px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 头像区域 - 缩小尺寸 */
+        .avatar-section {
+            flex-shrink: 0;
+            text-align: center;
+            width: 140px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px;
+        }
+
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: #f0f0f0;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 32px;
+            background: #e0e0e0;
+        }
+
+        .vip-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            border: 2px solid white;
+            display: none;
+        }
+
+        .avatar-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .avatar-upload-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .avatar-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* 基本信息区域 */
+        .basic-info-section {
+            flex: 1;
+        }
+
+        .user-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .username {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .user-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .user-stat-icon {
+            width: 36px;
+            height: 36px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .user-stat-info {
+            flex: 1;
+        }
+
+        .user-stat-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .user-stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* 升级进度条 */
+        .progress-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-tip {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* 表单区域 */
+        .form-section {
+            margin: 20px 30px;
+            padding: 25px;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: 600;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: #f8f9fa;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        /* 操作按钮 */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .secondary-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #ccc;
+        }
+
+        .save-btn {
+            padding: 12px 32px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* VIP详情弹窗样式 */
+        .vip-modal-content {
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .vip-levels-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .vip-levels-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .vip-levels-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .vip-levels-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .vip-levels-table .current-level {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .vip-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .vip-benefit-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .vip-benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .vip-benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .vip-benefit-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .vip-benefit-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 15px;
+            }
+
+            .profile-header,
+            .profile-card,
+            .form-section,
+            .form-actions {
+                margin: 15px;
+            }
+
+            .profile-header-row {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .avatar-section {
+                width: 100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .secondary-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .save-btn {
+                width: 100%;
+            }
+
+            .vip-benefits {
+                grid-template-columns: 1fr;
+            }
+
+            .vip-levels-table {
+                font-size: 14px;
+            }
+
+            .vip-levels-table th,
+            .vip-levels-table td {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-header {
+                padding: 20px;
+            }
+
+            .profile-card {
+                padding: 15px;
+            }
+
+            .form-section {
+                padding: 15px;
+            }
+
+            .user-stats {
+                gap: 10px;
+            }
+
+            .user-stat-item {
+                padding: 10px;
+            }
+
+            .vip-levels-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -24,94 +569,332 @@
     </header>
 
     <div class="container">
-        <div class="product-edit-container">
-            <h2>个人信息</h2>
+        <div class="profile-container">
+            <div class="profile-header">
+                <h2>个人信息</h2>
+                <p>管理您的账户信息和会员等级</p>
+            </div>
 
-            <!-- 会员信息卡片 -->
-            <div id="vipCard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 12px; color: white; margin-bottom: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 style="margin-bottom: 10px; font-size: 24px;">VIP <span id="vipLevel">0</span> 级会员</h3>
-                        <p style="opacity: 0.9; margin-bottom: 5px;">累计消费: ¥<span id="totalSpent">0</span></p>
-                        <p style="opacity: 0.9;">当前折扣: <span id="vipDiscount">无</span></p>
+            <!-- 个人信息卡片 - 整合VIP信息 -->
+            <div class="profile-card">
+                <div class="profile-header-row">
+                    <!-- 头像区域 -->
+                    <div class="avatar-section">
+                        <div class="avatar-container">
+                            <div class="avatar-preview">
+                                <div class="avatar-placeholder" id="avatarPlaceholder">👤</div>
+                                <img id="avatarPreview" src="" alt="头像预览" style="display: none;">
+                            </div>
+                            <div class="vip-badge" id="vipBadge">VIP0</div>
+                        </div>
+                        <button type="button" class="avatar-upload-btn" onclick="document.getElementById('avatarFileInput').click()">
+                            📷 更换头像
+                        </button>
+                        <div class="avatar-hint">支持 JPG、PNG 格式，大小不超过 2MB</div>
+                        <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarSelect(event)">
                     </div>
-                    <div style="text-align: right;">
-                        <p style="opacity: 0.9; font-size: 14px;" id="nextLevel"></p>
+
+                    <!-- 基本信息区域 -->
+                    <div class="basic-info-section">
+                        <div class="user-name-row">
+                            <div class="username" id="usernameDisplay">加载中...</div>
+                            <button onclick="showVipDetails()" style="background: none; border: none; color: #666; cursor: help; font-size: 16px;" title="查看会员权益详情">
+                                ❓
+                            </button>
+                        </div>
+
+                        <div class="user-stats">
+                            <div class="user-stat-item">
+                                <div class="user-stat-icon">💰</div>
+                                <div class="user-stat-info">
+                                    <div class="user-stat-label">累计消费</div>
+                                    <div class="user-stat-value">¥<span id="totalSpent">0</span></div>
+                                </div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-icon">🪙</div>
+                                <div class="user-stat-info">
+                                    <div class="user-stat-label">会员积分</div>
+                                    <div class="user-stat-value"><span id="userPoints">0</span></div>
+                                </div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-icon">🎁</div>
+                                <div class="user-stat-info">
+                                    <div class="user-stat-label">当前折扣</div>
+                                    <div class="user-stat-value"><span id="vipDiscount">无</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <div class="progress-label">升级进度</div>
+                                <div class="progress-value" id="progressText">距离 VIP<span id="nextLevelNum">1</span> 还需 <span id="remainingExp">0</span> 经验值</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-tip" id="progressTip">升级至 VIP<span id="nextLevelTip">1</span> 可享 <span id="nextDiscount">9.0</span> 折特权</div>
+                        </div>
                     </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="location.href='points-mall.html'" style="padding: 8px 20px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 10px;">
+                        🪙 积分商城
+                    </button>
+                    <button onclick="location.href='orders.html'" style="padding: 8px 20px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                        📋 我的订单
+                    </button>
                 </div>
             </div>
 
-            <form id="profileForm">
-                <div class="form-group">
-                    <label>头像</label>
-                    <div class="image-upload-container" id="dropZone">
-                        <div class="image-preview" id="imagePreview">
-                            <img id="previewImage" src="" alt="头像预览" style="display: none;">
-                            <button type="button" class="delete-image-btn" onclick="deleteAvatar()">×</button>
-                            <div id="uploadPrompt">
-                                <div style="font-size: 48px; color: #999; margin-bottom: 10px;">👤</div>
-                                <div style="font-size: 16px; color: #666; margin-bottom: 5px;">拖拽头像到此处</div>
-                                <div style="font-size: 14px; color: #999;">或</div>
-                                <button type="button" class="btn-secondary" style="margin-top: 10px;" onclick="document.getElementById('fileInput').click()">选择文件</button>
-                            </div>
-                        </div>
-                        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+            <!-- 基础信息表单 -->
+            <div class="form-section">
+                <h3 class="section-title">基础信息</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="username" disabled>
+                        <div class="field-hint">系统分配，不可修改</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">昵称</label>
+                        <input type="text" id="nickname" placeholder="请输入昵称" maxlength="20">
+                        <div class="field-hint">用于社区显示，2-20个字符</div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>用户名</label>
-                    <input type="text" id="username" disabled>
-                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="gender">
+                            <option value="">请选择</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                            <option value="保密">保密</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label>昵称</label>
-                    <input type="text" id="nickname" placeholder="请输入昵称">
+                    <div class="form-group">
+                        <label>生日</label>
+                        <input type="date" id="birthday">
+                        <div class="field-hint">生日当天可领取专属礼包</div>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>个性签名</label>
-                    <textarea id="signature" placeholder="写下你的个性签名..." rows="3" maxlength="200"></textarea>
+                    <textarea id="signature" placeholder="请输入个性签名..." rows="3" maxlength="200"></textarea>
+                    <div class="field-hint">展示您的个性，最多200字</div>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>邮箱</label>
-                    <input type="email" id="email" disabled>
-                </div>
+            <!-- 联系信息 -->
+            <div class="form-section">
+                <h3 class="section-title">联系信息</h3>
 
-                <div class="form-group">
-                    <label>手机号</label>
-                    <input type="text" id="phone" placeholder="请输入手机号">
-                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="email" id="email" disabled>
+                        <div class="field-hint">
+                            已验证
+                            <a href="#" style="color: #4CAF50; text-decoration: none; margin-left: 8px;" onclick="changeEmail()">修改邮箱</a>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label>性别</label>
-                    <select id="gender">
-                        <option value="">请选择</option>
-                        <option value="男">男</option>
-                        <option value="女">女</option>
-                        <option value="保密">保密</option>
-                    </select>
+                    <div class="form-group">
+                        <label class="required">手机号</label>
+                        <input type="text" id="phone" placeholder="请输入手机号" maxlength="11">
+                        <div class="field-hint">
+                            用于订单通知和登录验证
+                            <a href="#" style="color: #4CAF50; text-decoration: none; margin-left: 8px;" onclick="verifyPhone()">验证手机</a>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>生日</label>
-                    <input type="date" id="birthday">
+            <!-- 操作按钮 -->
+            <div class="form-actions">
+                <div class="secondary-actions">
+                    <button type="button" class="btn-secondary" onclick="location.href='address.html'">
+                        📦 管理收货地址
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="location.href='index.html'">
+                        🏠 返回首页
+                    </button>
                 </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="location.href='address.html'">管理收货地址</button>
-                    <button type="submit" class="btn-primary">保存</button>
-                </div>
-            </form>
+                <button type="button" class="save-btn" id="saveBtn" onclick="saveProfile()" disabled>
+                    保存修改
+                </button>
+            </div>
         </div>
     </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 联想笔记本商城. All rights reserved.</p>
-    </footer>
+    <!-- 会员详情弹窗 -->
+    <div class="modal" id="vipModal" style="display: none;">
+        <div class="modal-content vip-modal-content">
+            <span class="close" onclick="closeVipModal()">&times;</span>
+            <h2>会员权益详情</h2>
+
+            <div style="line-height: 1.8;">
+                <h3>VIP等级体系</h3>
+                <table class="vip-levels-table">
+                    <thead>
+                        <tr>
+                            <th>等级</th>
+                            <th>所需经验</th>
+                            <th>折扣</th>
+                            <th>每日折扣次数</th>
+                            <th>积分获取倍率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="vipRow0">
+                            <td>普通会员</td>
+                            <td>0</td>
+                            <td>无折扣</td>
+                            <td>0</td>
+                            <td>1.0x</td>
+                        </tr>
+                        <tr id="vipRow1">
+                            <td>VIP1</td>
+                            <td>3,600</td>
+                            <td>9折</td>
+                            <td>1次</td>
+                            <td>1.2x</td>
+                        </tr>
+                        <tr id="vipRow2">
+                            <td>VIP2</td>
+                            <td>9,600</td>
+                            <td>9折</td>
+                            <td>2次</td>
+                            <td>1.2x</td>
+                        </tr>
+                        <tr id="vipRow3">
+                            <td>VIP3</td>
+                            <td>30,000</td>
+                            <td>9折</td>
+                            <td>3次</td>
+                            <td>1.2x</td>
+                        </tr>
+                        <tr id="vipRow4">
+                            <td>VIP4</td>
+                            <td>75,000</td>
+                            <td>8.8折</td>
+                            <td>5次</td>
+                            <td>1.5x</td>
+                        </tr>
+                        <tr id="vipRow5">
+                            <td>VIP5</td>
+                            <td>200,000</td>
+                            <td>8.5折</td>
+                            <td>6次</td>
+                            <td>1.5x</td>
+                        </tr>
+                        <tr id="vipRow6">
+                            <td>VIP6</td>
+                            <td>600,000</td>
+                            <td>8.2折</td>
+                            <td>8次</td>
+                            <td>2.0x</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="vip-benefits">
+                    <div class="vip-benefit-card">
+                        <div class="vip-benefit-icon">💰</div>
+                        <div class="vip-benefit-title">专属折扣</div>
+                        <div class="vip-benefit-desc">不同等级享受不同折扣优惠，最高可达8.2折，每日可使用多次</div>
+                    </div>
+
+                    <div class="vip-benefit-card">
+                        <div class="vip-benefit-icon">🪙</div>
+                        <div class="vip-benefit-title">积分加速</div>
+                        <div class="vip-benefit-desc">VIP等级越高，消费获得的积分越多，最高可达2倍积分</div>
+                    </div>
+
+                    <div class="vip-benefit-card">
+                        <div class="vip-benefit-icon">🎁</div>
+                        <div class="vip-benefit-title">生日礼包</div>
+                        <div class="vip-benefit-desc">生日当月可领取专属礼包，包含优惠券和积分奖励</div>
+                    </div>
+
+                    <div class="vip-benefit-card">
+                        <div class="vip-benefit-icon">🚚</div>
+                        <div class="vip-benefit-title">优先发货</div>
+                        <div class="vip-benefit-desc">VIP4及以上会员享受优先发货和专属客服服务</div>
+                    </div>
+                </div>
+
+                <h3>如何升级？</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                    <p><strong>经验值获取方式：</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>消费1元 = 1.2-2.0经验值（根据VIP等级）</li>
+                        <li>完成每日签到任务可获得额外经验</li>
+                        <li>参与商城活动可获得大量经验奖励</li>
+                        <li>邀请好友注册并消费可获得经验</li>
+                    </ul>
+                    <p><strong>积分获取方式：</strong></p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>消费1元 = 10-5积分（根据VIP等级）</li>
+                        <li>积分可在积分商城兑换优惠券和礼品</li>
+                        <li>积分永久有效，不会过期</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                    <button onclick="closeVipModal()" style="padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/common.js"></script>
     <script src="js/profile.js"></script>
+    <script>
+        // 在profile.js的基础上添加VIP弹窗相关功能
+        function showVipDetails() {
+            const modal = document.getElementById('vipModal');
+            modal.style.display = 'flex';
+
+            // 高亮当前等级
+            const currentLevel = parseInt(document.getElementById('vipBadge').textContent.replace('VIP', '')) || 0;
+            document.querySelectorAll('.vip-levels-table tr').forEach(tr => tr.classList.remove('current-level'));
+            if (currentLevel > 0) {
+                document.getElementById(`vipRow${currentLevel}`).classList.add('current-level');
+            }
+        }
+
+        function closeVipModal() {
+            document.getElementById('vipModal').style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('vipModal');
+            if (event.target === modal) {
+                closeVipModal();
+            }
+        }
+
+        // 添加键盘ESC关闭功能
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeVipModal();
+            }
+        });
+
+        // 修改profile.js中的showVipDetails函数调用
+        window.showVipDetails = showVipDetails;
+    </script>
 </body>
 </html>
