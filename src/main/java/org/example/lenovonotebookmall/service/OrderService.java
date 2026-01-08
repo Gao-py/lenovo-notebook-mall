@@ -124,6 +124,32 @@ public class OrderService {
         return savedOrder;
     }
 
+    @Transactional
+    public void refundOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("订单不存在"));
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new RuntimeException("无权操作此订单");
+        }
+
+        if (order.getStatus() != Order.OrderStatus.PAID) {
+            throw new RuntimeException("只能退款已支付的订单");
+        }
+
+        // 恢复库存和销量
+        order.getItems().forEach(item -> {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            product.setSales((product.getSales() == null ? 0 : product.getSales()) - item.getQuantity());
+            productService.saveProduct(product);
+        });
+
+        // 更新订单状态
+        order.setStatus(Order.OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
+
     private BigDecimal applyCoupon(BigDecimal amount, Coupon coupon, List<OrderItem> items) {
         if (coupon.getProduct() != null || coupon.getCategory() != null) {
             BigDecimal matchedAmount = items.stream()

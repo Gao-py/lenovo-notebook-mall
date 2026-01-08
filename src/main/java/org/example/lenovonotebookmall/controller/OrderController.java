@@ -69,6 +69,18 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/{orderId}/refund")
+    public ApiResponse<Void> refundOrder(@PathVariable Long orderId, Authentication auth) {
+        try {
+            User user = userRepository.findByUsername(auth.getName())
+                    .orElseThrow(() -> new RuntimeException("用户不存在"));
+            orderService.refundOrder(orderId, user.getId());
+            return ApiResponse.success(null);
+        } catch (Exception e) {
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
     @Data
     public static class CheckoutRequest {
         private String address;
