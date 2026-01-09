@@ -8,6 +8,7 @@ import org.example.lenovonotebookmall.repository.VipDiscountUsageRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
@@ -16,12 +17,7 @@ public class VipService {
     private final VipDiscountUsageRepository usageRepository;
 
     private static final int[] VIP_EXP_THRESHOLDS = {
-        3600,    // VIP1
-        9600,    // VIP2
-        30000,   // VIP3
-        75000,   // VIP4
-        200000,  // VIP5
-        600000   // VIP6
+        3600, 9600, 30000, 75000, 200000, 600000
     };
     
     private static final int[] DAILY_DISCOUNT_LIMITS = {1, 2, 3, 5, 6, 8};
@@ -86,7 +82,7 @@ public class VipService {
     public boolean canUseDiscount(Long userId, Integer vipLevel) {
         if (vipLevel == null || vipLevel <= 0) return false;
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Shanghai"));
         long usedCount = usageRepository.countByUserIdAndUsageDate(userId, today);
         int limit = DAILY_DISCOUNT_LIMITS[vipLevel - 1];
 
@@ -96,14 +92,14 @@ public class VipService {
     public void recordDiscountUsage(Long userId) {
         VipDiscountUsage usage = new VipDiscountUsage();
         usage.setUserId(userId);
-        usage.setUsageDate(LocalDate.now());
+        usage.setUsageDate(LocalDate.now(ZoneId.of("Asia/Shanghai")));
         usageRepository.save(usage);
     }
 
     public int getRemainingDiscounts(Long userId, Integer vipLevel) {
         if (vipLevel == null || vipLevel <= 0) return 0;
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Shanghai"));
         long usedCount = usageRepository.countByUserIdAndUsageDate(userId, today);
         int limit = DAILY_DISCOUNT_LIMITS[vipLevel - 1];
 
