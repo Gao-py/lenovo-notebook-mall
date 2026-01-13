@@ -32,10 +32,12 @@ async function loadChatHistory() {
                     messagesDiv.innerHTML = result.data.map(msg => {
                         const isSent = msg.senderId === currentUserId;
                         const time = new Date(msg.createTime).toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+                        // 修改这里：管理员发送显示"客服"，接收显示"客户"；普通用户发送显示"我"，接收显示"客服"
+                        const avatarText = isSent ? (isAdmin ? '客服' : '我') : (isAdmin ? '客户' : '客服');
                         return `
                             <div class="message ${isSent ? 'sent' : 'received'}">
                                 <div class="message-wrapper">
-                                    <div class="message-avatar">${isSent ? '我' : '客服'}</div>
+                                    <div class="message-avatar">${avatarText}</div>
                                     <div>
                                         <div class="message-content">${msg.content}</div>
                                         <div class="message-time">${time}</div>
