@@ -183,7 +183,7 @@ public class AIAssistantService {
     private String enrichResponseWithLinks(String aiResponse, List<Product> products) {
         String result = aiResponse;
 
-        // 记录已处理的商品ID，避免重复替换
+        System.out.println("=== 开始处理链接 ===");
         Set<Long> linkedProductIds = new HashSet<>();
 
         for (Product p : products) {
@@ -191,39 +191,30 @@ public class AIAssistantService {
             Long productId = p.getId();
 
             // 1. 匹配格式：【商品名称】(ID:数字)
-            String pattern1 = "【" + Pattern.quote(productName) + "】\\s*\\(ID:" + productId + "\\)";
-            if (Pattern.compile(pattern1).matcher(result).find()) {
-                String replacement = String.format(
-                        "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>【%s】</a>",
-                        productId, productName
-                );
-                result = result.replaceAll(pattern1, Matcher.quoteReplacement(replacement));
+            String pattern1 = "【" + Pattern.quote(productName) + "】\\s*\\(ID:\\s*" + productId + "\\)";
+            Matcher m1 = Pattern.compile(pattern1).matcher(result);
+            if (m1.find()) {
+                String replacement = buildProductCard(p);
+                result = m1.replaceAll(Matcher.quoteReplacement(replacement));
                 linkedProductIds.add(productId);
                 continue;
             }
 
             // 2. 匹配格式：商品名称(ID:数字)
-            String pattern2 = Pattern.quote(productName) + "\\s*\\(ID:" + productId + "\\)";
-            if (Pattern.compile(pattern2).matcher(result).find()) {
-                String replacement = String.format(
-                        "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>%s</a>",
-                        productId, productName
-                );
-                result = result.replaceAll(pattern2, Matcher.quoteReplacement(replacement));
+            String pattern2 = Pattern.quote(productName) + "\\s*\\(ID:\\s*" + productId + "\\)";
+            Matcher m2 = Pattern.compile(pattern2).matcher(result);
+            if (m2.find()) {
+                String replacement = buildProductCard(p);
+                result = m2.replaceAll(Matcher.quoteReplacement(replacement));
                 linkedProductIds.add(productId);
                 continue;
             }
 
-            // 3. 匹配纯商品名称（仅当该商品还没有被链接时）
-            if (!linkedProductIds.contains(productId) && result.contains(productName)) {
-                // 检查是否已经在链接标签内
+            // 3. 匹配纯商品名称
+            if (!linkedProductIds.contains(productId)) {
                 String checkPattern = "<a[^>]*>" + Pattern.quote(productName) + "</a>";
-                if (!Pattern.compile(checkPattern).matcher(result).find()) {
-                    String replacement = String.format(
-                            "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>%s</a>",
-                            productId, productName
-                    );
-                    // 只替换第一个匹配，避免重复
+                if (!Pattern.compile(checkPattern).matcher(result).find() && result.contains(productName)) {
+                    String replacement = buildProductCard(p);
                     result = result.replaceFirst(Pattern.quote(productName), Matcher.quoteReplacement(replacement));
                 }
             }
@@ -232,6 +223,23 @@ public class AIAssistantService {
         return result;
     }
 
+    private String buildProductCard(Product p) {
+        String imageUrl = p.getImageUrl() != null ? p.getImageUrl() :
+            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='90'%3E%3Crect width='120' height='90' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23999'%3ELenovo%3C/text%3E%3C/svg%3E";
+
+        return String.format("""
+            <div style='display: inline-block; width: 360px; margin: 15px 10px; padding: 18px; background: white; border: 2px solid #e60012; border-radius: 12px; box-shadow: 0 4px 12px rgba(230,0,18,0.15); vertical-align: top; transition: transform 0.3s;' onmouseover='this.style.transform="translateY(-5px)"' onmouseout='this.style.transform="translateY(0)"'>
+                <img src='%s' style='width: 100%%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;'>
+                <div style='font-size: 17px; font-weight: 600; color: #333; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'>%s</div>
+                <div style='font-size: 14px; color: #666; margin-bottom: 10px;'>型号：%s</div>
+                <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;'>
+                    <span style='font-size: 26px; font-weight: bold; color: #e60012;'>¥%.2f</span>
+                    <span style='font-size: 13px; color: #999;'>库存：%d</span>
+                </div>
+                <a href='/product.html?id=%d' style='display: block; text-align: center; padding: 12px; background: linear-gradient(135deg, #e60012 0%%, #c00010 100%%); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;'>查看详情 →</a>
+            </div>
+            """, imageUrl, p.getName(), p.getModel(), p.getPrice(), p.getStock(), p.getId());
+    }
 
     private String fallbackResponse(String userMessage) {
         List<Product> products = productRepository.findAll();
