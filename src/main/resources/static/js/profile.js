@@ -2,14 +2,15 @@ if (!requireAuth()) {
     location.href = 'index.html';
 }
 
-const token = localStorage.getItem('token');
-if (!token) {
-    alert('请先登录');
-    location.href = 'index.html';
-    throw new Error('未登录');
-}
+// const token = localStorage.getItem('token');
+// if (!token) {
+//     alert('请先登录');
+//     location.href = 'index.html';
+//     throw new Error('未登录');
+// }
 
 let originalProfile = null;
+
 let avatarChanged = false;
 
 async function loadProfile() {
@@ -142,8 +143,9 @@ async function loadVipInfo() {
 
             if (vipDiscountEl) {
                 if (vip.vipLevel > 0 && vip.discount) {
-                    const discountPercent = ((1 - vip.discount) * 100).toFixed(0);
-                    vipDiscountEl.textContent = `${discountPercent}折`;
+                    // 将折扣转换为百分比格式：如0.85 -> -15%
+                    const discountPercent = Math.round((1 - vip.discount) * 100);
+                    vipDiscountEl.textContent = `-${discountPercent}%`;
                 } else {
                     vipDiscountEl.textContent = '无折扣';
                 }
@@ -181,8 +183,9 @@ function getPrevLevelExp(currentLevel) {
 }
 
 function getNextLevelDiscount(currentLevel) {
-    const discounts = ['9.0', '9.0', '9.0', '8.8', '8.5', '8.2', '8.0'];
-    return discounts[currentLevel + 1] || '8.0';
+    // VIP等级对应的折扣百分比（负值表示优惠）
+    const discounts = ['-10%', '-10%', '-10%', '-12%', '-15%', '-18%', '-20%'];
+    return discounts[currentLevel + 1] || '-20%';
 }
 
 function initAvatarUpload() {
@@ -366,36 +369,36 @@ function showVipDetails() {
     document.getElementById('vipModal').style.display = 'flex';
 }
 
-function changeEmail() {
-    showToast('修改邮箱功能开发中', 'info');
-}
-
-function verifyPhone() {
-    const phone = document.getElementById('phone').value;
-    if (!phone) {
-        showToast('请先输入手机号', 'warning');
-        return;
-    }
-
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-        showToast('手机号格式不正确', 'error');
-        return;
-    }
-
-    showToast('验证码已发送到您的手机', 'success');
-}
-
-function changePassword() {
-    showToast('修改密码功能开发中', 'info');
-}
-
-function manageDevices() {
-    showToast('设备管理功能开发中', 'info');
-}
-
-function viewLoginHistory() {
-    showToast('登录记录功能开发中', 'info');
-}
+// function changeEmail() {
+//     showToast('修改邮箱功能开发中', 'info');
+// }
+//
+// function verifyPhone() {
+//     const phone = document.getElementById('phone').value;
+//     if (!phone) {
+//         showToast('请先输入手机号', 'warning');
+//         return;
+//     }
+//
+//     if (!/^1[3-9]\d{9}$/.test(phone)) {
+//         showToast('手机号格式不正确', 'error');
+//         return;
+//     }
+//
+//     showToast('验证码已发送到您的手机', 'success');
+// }
+//
+// function changePassword() {
+//     showToast('修改密码功能开发中', 'info');
+// }
+//
+// function manageDevices() {
+//     showToast('设备管理功能开发中', 'info');
+// }
+//
+// function viewLoginHistory() {
+//     showToast('登录记录功能开发中', 'info');
+// }
 
 function showToast(message, type = 'info') {
     // 移除现有的toast
