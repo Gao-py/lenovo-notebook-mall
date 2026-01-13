@@ -108,6 +108,7 @@ function updateVipInfoInProfile(user) {
     }
 }
 
+// 修改后的 loadVipInfo 函数部分
 async function loadVipInfo() {
     try {
         const token = localStorage.getItem('token');
@@ -124,23 +125,8 @@ async function loadVipInfo() {
         if (data.success) {
             const vip = data.data;
 
-            // 添加空值检查
-            const vipLevelEl = document.getElementById('vipLevel');
-            const totalSpentEl = document.getElementById('totalSpent');
-            const vipPointsEl = document.getElementById('vipPoints');
+            // 更新VIP折扣显示
             const vipDiscountEl = document.getElementById('vipDiscount');
-            const progressFillEl = document.getElementById('progressFill');
-            const progressTextEl = document.getElementById('progressText');
-            const remainingExpEl = document.getElementById('remainingExp');
-            const nextLevelNumEl = document.getElementById('nextLevelNum');
-            const nextLevelTipEl = document.getElementById('nextLevelTip');
-            const nextDiscountEl = document.getElementById('nextDiscount');
-            const progressTipEl = document.getElementById('progressTip');
-
-            if (vipLevelEl) vipLevelEl.textContent = vip.vipLevel || 0;
-            if (totalSpentEl) totalSpentEl.textContent = vip.totalSpent ? vip.totalSpent.toFixed(2) : '0.00';
-            if (vipPointsEl) vipPointsEl.textContent = vip.vipPoints || 0;
-
             if (vipDiscountEl) {
                 if (vip.vipLevel > 0 && vip.discount) {
                     // 将折扣转换为百分比格式：如0.85 -> -15%
@@ -151,30 +137,22 @@ async function loadVipInfo() {
                 }
             }
 
-            if (vip.nextLevelExp) {
-                const currentExp = vip.vipExperience || 0;
-                const nextExp = vip.nextLevelExp;
-                const prevExp = getPrevLevelExp(vip.vipLevel || 0);
-                const progress = ((currentExp - prevExp) / (nextExp - prevExp)) * 100;
-
-                if (progressFillEl) progressFillEl.style.width = `${Math.min(progress, 100)}%`;
-                if (remainingExpEl) remainingExpEl.textContent = (nextExp - currentExp).toLocaleString();
-                if (nextLevelNumEl) nextLevelNumEl.textContent = (vip.vipLevel || 0) + 1;
-                if (nextLevelTipEl) nextLevelTipEl.textContent = (vip.vipLevel || 0) + 1;
-                if (nextDiscountEl) nextDiscountEl.textContent = getNextLevelDiscount(vip.vipLevel || 0);
-
-                if (progressTextEl) {
-                    progressTextEl.textContent = `距离 VIP${(vip.vipLevel || 0) + 1} 还需 ${(nextExp - currentExp).toLocaleString()} 经验值`;
-                }
-            } else {
-                if (progressFillEl) progressFillEl.style.width = '100%';
-                if (progressTextEl) progressTextEl.textContent = '已达最高等级';
-                if (progressTipEl) progressTipEl.textContent = '您已是最高等级会员';
+            // 更新升级进度提示
+            const nextDiscountEl = document.getElementById('nextDiscount');
+            if (nextDiscountEl) {
+                nextDiscountEl.textContent = getNextLevelDiscount(vip.vipLevel || 0);
             }
         }
     } catch (error) {
         console.error('加载VIP信息失败:', error);
     }
+}
+
+// 修改后的 getNextLevelDiscount 函数
+function getNextLevelDiscount(currentLevel) {
+    // VIP等级对应的折扣百分比（负值表示优惠）
+    const discounts = ['-10%', '-10%', '-10%', '-12%', '-15%', '-18%', '-20%'];
+    return discounts[currentLevel + 1] || '-20%';
 }
 
 function getPrevLevelExp(currentLevel) {

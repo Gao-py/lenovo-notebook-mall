@@ -37,33 +37,6 @@ async function loadUserPoints() {
     }
 }
 
-// 修改 loadCoupons 函数
-async function loadCoupons() {
-    try {
-        const res = await fetch('/api/points-mall/coupons');
-
-        if (!res.ok) {
-            console.error('获取优惠券失败:', res.status, res.statusText);
-            displayCoupons([]);
-            return;
-        }
-
-        const data = await res.json();
-        console.log('优惠券响应:', data); // 调试信息
-
-        if (data.success) {
-            allCoupons = data.data || [];
-            filterCoupons(currentFilter);
-        } else {
-            console.error('优惠券数据格式错误:', data);
-            displayCoupons([]);
-        }
-    } catch (error) {
-        console.error('加载优惠券失败:', error);
-        displayCoupons([]);
-    }
-}
-
 // 修改 filterCoupons 函数
 function filterCoupons(filter, event) {
     currentFilter = filter;
@@ -208,39 +181,137 @@ function displayCoupons(coupons) {
     }).join('');
 }
 
-// 添加 exchangeCoupon 函数
 async function exchangeCoupon(couponId) {
     const token = localStorage.getItem('token');
     if (!token) {
-        alert('请先登录');
-        location.href = 'index.html';
-        return;
-    }
-
-    if (!confirm('确定要兑换此优惠券吗？')) {
-        return;
-    }
-
-    try {
-        const res = await fetch(`/api/points-mall/exchange/${couponId}`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token }
+        showCustomModal('请先登录', '您需要登录后才能兑换优惠券', () => {
+            location.href = 'index.html';
         });
-
-        const data = await res.json();
-        if (data.success) {
-            alert('兑换成功！优惠券已添加到您的账户');
-            // 重新加载数据
-            await loadUserPoints();
-            await loadCoupons();
-            await loadMyCoupons();
-        } else {
-            alert('兑换失败: ' + data.message);
-        }
-    } catch (error) {
-        console.error('兑换优惠券失败:', error);
-        alert('兑换失败，请稍后重试');
+        return;
     }
+
+    // 获取优惠券信息用于显示
+    const coupon = allCoupons.find(c => c.id === couponId);
+    if (!coupon) return;
+
+    const couponDesc = getCouponDescription(coupon);
+
+    showCustomModal(
+        '确认兑换',
+        `<div style="text-align: left; line-height: 1.8;">
+            <p><strong>优惠券：</strong>${coupon.name}</p>
+            <p><strong>面值：</strong>${couponDesc}</p>
+            <p><strong>所需积分：</strong>${coupon.pointsCost} 积分</p>
+            <p style="color: #666; font-size: 14px; margin-top: 15px;">确定要兑换此优惠券吗？</p>
+        </div>`,
+        async () => {
+            try {
+                const res = await fetch(`/api/points-mall/exchange/${couponId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showSuccessModal('兑换成功！', '优惠券已添加到您的账户，可在"我的优惠券"中查看使用。');
+                    await loadUserPoints();
+                    await loadCoupons();
+                    await loadMyCoupons();
+                } else {
+                    showErrorModal('兑换失败', data.message || '未知错误');
+                }
+            } catch (error) {
+                console.error('兑换优惠券失败:', error);
+                showErrorModal('兑换失败', '网络错误，请稍后重试');
+            }
+        }
+    );
+}
+
+function getCouponDescription(coupon) {
+    if (coupon.type === 'DISCOUNT') {
+        return `${coupon.discountPercent}折`;
+    } else if (coupon.type === 'CASH') {
+        return `¥${coupon.discountAmount}`;
+    } else if (coupon.type === 'FULL_REDUCTION') {
+        return `满¥${coupon.minAmount}减¥${coupon.discountAmount}`;
+    }
+    return '';
+}
+
+function showCustomModal(title, content, onConfirm) {
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.innerHTML = `
+        <div class="custom-modal-overlay"></div>
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3>${title}</h3>
+            </div>
+            <div class="custom-modal-body">
+                ${content}
+            </div>
+            <div class="custom-modal-footer">
+                <button class="modal-btn modal-btn-cancel" onclick="this.closest('.custom-modal').remove()">取消</button>
+                <button class="modal-btn modal-btn-confirm">确定</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.modal-btn-confirm').onclick = () => {
+        modal.remove();
+        if (onConfirm) onConfirm();
+    };
+
+    modal.querySelector('.custom-modal-overlay').onclick = () => modal.remove();
+}
+
+function showSuccessModal(title, message) {
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.innerHTML = `
+        <div class="custom-modal-overlay"></div>
+        <div class="custom-modal-content">
+            <div class="custom-modal-header success">
+                <div class="modal-icon">✓</div>
+                <h3>${title}</h3>
+            </div>
+            <div class="custom-modal-body">
+                <p>${message}</p>
+            </div>
+            <div class="custom-modal-footer">
+                <button class="modal-btn modal-btn-confirm" onclick="this.closest('.custom-modal').remove()">确定</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.querySelector('.custom-modal-overlay').onclick = () => modal.remove();
+}
+
+function showErrorModal(title, message) {
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    modal.innerHTML = `
+        <div class="custom-modal-overlay"></div>
+        <div class="custom-modal-content">
+            <div class="custom-modal-header error">
+                <div class="modal-icon">✕</div>
+                <h3>${title}</h3>
+            </div>
+            <div class="custom-modal-body">
+                <p>${message}</p>
+            </div>
+            <div class="custom-modal-footer">
+                <button class="modal-btn modal-btn-confirm" onclick="this.closest('.custom-modal').remove()">确定</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.querySelector('.custom-modal-overlay').onclick = () => modal.remove();
 }
 
 // 修改 loadMyCoupons 函数

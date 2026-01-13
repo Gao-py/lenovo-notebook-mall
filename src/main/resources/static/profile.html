@@ -635,7 +635,8 @@
                             <div class="progress-bar">
                                 <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                             </div>
-                            <div class="progress-tip" id="progressTip">升级至 VIP<span id="nextLevelTip">1</span> 可享 <span id="nextDiscount">9.0</span> 折特权</div>
+                            <!-- 修改升级进度提示部分 -->
+                            <div class="progress-tip" id="progressTip">升级至 VIP<span id="nextLevelTip">1</span> 可享 <span id="nextDiscount">-10%</span> 优惠</div>
                         </div>
                     </div>
                 </div>
@@ -737,66 +738,67 @@
 
             <div style="line-height: 1.8;">
                 <h3>VIP等级体系</h3>
+                <!-- 在VIP详情弹窗部分，修改折扣表格（大约第250-280行） -->
                 <table class="vip-levels-table">
                     <thead>
-                        <tr>
-                            <th>等级</th>
-                            <th>所需经验</th>
-                            <th>折扣</th>
-                            <th>每日折扣次数</th>
-                            <th>积分获取倍率</th>
-                        </tr>
+                    <tr>
+                        <th>等级</th>
+                        <th>所需经验</th>
+                        <th>折扣</th>
+                        <th>每日折扣次数</th>
+                        <th>积分获取倍率</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr id="vipRow0">
-                            <td>普通会员</td>
-                            <td>0</td>
-                            <td>无折扣</td>
-                            <td>0</td>
-                            <td>1.0x</td>
-                        </tr>
-                        <tr id="vipRow1">
-                            <td>VIP1</td>
-                            <td>3,600</td>
-                            <td>9折</td>
-                            <td>1次</td>
-                            <td>1.2x</td>
-                        </tr>
-                        <tr id="vipRow2">
-                            <td>VIP2</td>
-                            <td>9,600</td>
-                            <td>9折</td>
-                            <td>2次</td>
-                            <td>1.2x</td>
-                        </tr>
-                        <tr id="vipRow3">
-                            <td>VIP3</td>
-                            <td>30,000</td>
-                            <td>9折</td>
-                            <td>3次</td>
-                            <td>1.2x</td>
-                        </tr>
-                        <tr id="vipRow4">
-                            <td>VIP4</td>
-                            <td>75,000</td>
-                            <td>8.8折</td>
-                            <td>5次</td>
-                            <td>1.5x</td>
-                        </tr>
-                        <tr id="vipRow5">
-                            <td>VIP5</td>
-                            <td>200,000</td>
-                            <td>8.5折</td>
-                            <td>6次</td>
-                            <td>1.5x</td>
-                        </tr>
-                        <tr id="vipRow6">
-                            <td>VIP6</td>
-                            <td>600,000</td>
-                            <td>8.2折</td>
-                            <td>8次</td>
-                            <td>2.0x</td>
-                        </tr>
+                    <tr id="vipRow0">
+                        <td>普通会员</td>
+                        <td>0</td>
+                        <td>无折扣</td>
+                        <td>0</td>
+                        <td>1.0x</td>
+                    </tr>
+                    <tr id="vipRow1">
+                        <td>VIP1</td>
+                        <td>3,600</td>
+                        <td>-10%</td>
+                        <td>1次</td>
+                        <td>1.2x</td>
+                    </tr>
+                    <tr id="vipRow2">
+                        <td>VIP2</td>
+                        <td>9,600</td>
+                        <td>-10%</td>
+                        <td>2次</td>
+                        <td>1.2x</td>
+                    </tr>
+                    <tr id="vipRow3">
+                        <td>VIP3</td>
+                        <td>30,000</td>
+                        <td>-10%</td>
+                        <td>3次</td>
+                        <td>1.2x</td>
+                    </tr>
+                    <tr id="vipRow4">
+                        <td>VIP4</td>
+                        <td>75,000</td>
+                        <td>-12%</td>
+                        <td>5次</td>
+                        <td>1.5x</td>
+                    </tr>
+                    <tr id="vipRow5">
+                        <td>VIP5</td>
+                        <td>200,000</td>
+                        <td>-15%</td>
+                        <td>6次</td>
+                        <td>1.5x</td>
+                    </tr>
+                    <tr id="vipRow6">
+                        <td>VIP6</td>
+                        <td>600,000</td>
+                        <td>-18%</td>
+                        <td>8次</td>
+                        <td>2.0x</td>
+                    </tr>
                     </tbody>
                 </table>
 

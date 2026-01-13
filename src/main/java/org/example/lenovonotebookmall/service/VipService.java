@@ -65,16 +65,18 @@ public class VipService {
         return 5.0;
     }
 
+    // 在 getVipDiscount 方法中，修改折扣计算逻辑（大约第70-85行）
     public BigDecimal getVipDiscount(Integer vipLevel) {
         if (vipLevel == null || vipLevel <= 0) {
-            return BigDecimal.ONE;
+            return BigDecimal.ONE; // 无折扣
         }
+        // 折扣率：VIP1-3: 90折，VIP4: 88折，VIP5: 85折，VIP6: 82折
         int discount = switch(vipLevel) {
-            case 1, 2, 3 -> 90;
-            case 4 -> 88;
-            case 5 -> 85;
-            case 6 -> 82;
-            default -> 100;
+            case 1, 2, 3 -> 90;  // 对应 -10%
+            case 4 -> 88;        // 对应 -12%
+            case 5 -> 85;        // 对应 -15%
+            case 6 -> 82;        // 对应 -18%
+            default -> 100;      // 无折扣
         };
         return BigDecimal.valueOf(discount).divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
     }
