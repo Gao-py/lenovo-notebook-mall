@@ -13,7 +13,10 @@ import org.example.lenovonotebookmall.repository.ProductCommentRepository;
 import org.example.lenovonotebookmall.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +26,7 @@ public class ProductCommentService {
     private final UserRepository userRepository;
     private final OrderRatingRepository orderRatingRepository;
     private final CommentLikeRepository likeRepository;
+    private static final int MAX_DEPTH = 10;
 
     public void addComment(Long userId, CommentRequest request) {
         if (request.getParentId() == null) {
@@ -36,11 +40,14 @@ public class ProductCommentService {
         comment.setParentId(request.getParentId());
         commentRepository.save(comment);
     }
-    
+
+    @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsByProductId(Long productId, Long currentUserId) {
         List<OrderRating> ratings = orderRatingRepository.findByProductId(productId).stream()
             .filter(r -> r.getComment() != null && !r.getComment().trim().isEmpty())
-            .filter(r -> r.getOrderItem() != null && r.getOrderItem().getOrder() != null && r.getOrderItem().getOrder().getUser() != null)
+            .filter(r -> r.getOrderItem() != null &&
+                         r.getOrderItem().getOrder() != null &&
+                         r.getOrderItem().getOrder().getUser() != null)
             .collect(Collectors.toList());
 
         List<ProductComment> allReplies = commentRepository.findByProductIdOrderByCreateTimeDesc(productId);
@@ -59,14 +66,22 @@ public class ProductCommentService {
             response.setRating(rating.getRating());
             response.setImages(rating.getImages());
             response.setLikeCount(likeRepository.countByCommentId(rating.getId()));
-            response.setIsLiked(currentUserId != null && likeRepository.findByCommentIdAndUserId(rating.getId(), currentUserId).isPresent());
+            response.setIsLiked(currentUserId != null &&
+                likeRepository.findByCommentIdAndUserId(rating.getId(), currentUserId).isPresent());
 
-            response.setReplies(buildReplyTree(rating.getId(), allReplies, currentUserId));
+            response.setReplies(buildReplyTree(rating.getId(), allReplies, currentUserId, 0, new HashSet<>()));
             return response;
         }).collect(Collectors.toList());
     }
 
-    private List<CommentResponse> buildReplyTree(Long parentId, List<ProductComment> allReplies, Long currentUserId) {
+    private List<CommentResponse> buildReplyTree(Long parentId, List<ProductComment> allReplies,
+                                                  Long currentUserId, int depth, Set<Long> visited) {
+        if (depth >= MAX_DEPTH || visited.contains(parentId)) {
+            return new ArrayList<>();
+        }
+
+        visited.add(parentId);
+
         return allReplies.stream()
             .filter(r -> r.getParentId() != null && r.getParentId().equals(parentId))
             .map(r -> {
@@ -76,7 +91,8 @@ public class ProductCommentService {
                 reply.setCreateTime(r.getCreateTime());
                 reply.setParentId(r.getParentId());
                 reply.setLikeCount(likeRepository.countByCommentId(r.getId()));
-                reply.setIsLiked(currentUserId != null && likeRepository.findByCommentIdAndUserId(r.getId(), currentUserId).isPresent());
+                reply.setIsLiked(currentUserId != null &&
+                    likeRepository.findByCommentIdAndUserId(r.getId(), currentUserId).isPresent());
 
                 User replyUser = userRepository.findById(r.getUserId()).orElse(null);
                 if (replyUser != null) {
@@ -84,7 +100,7 @@ public class ProductCommentService {
                     reply.setAvatar(replyUser.getAvatar());
                 }
 
-                reply.setReplies(buildReplyTree(r.getId(), allReplies, currentUserId));
+                reply.setReplies(buildReplyTree(r.getId(), allReplies, currentUserId, depth + 1, new HashSet<>(visited)));
                 return reply;
             })
             .collect(Collectors.toList());
