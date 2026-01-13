@@ -167,3 +167,14 @@ document.querySelector('.carousel').addEventListener('mouseleave', startCarousel
 
 loadProducts();
 startCarousel();
+
+// 在文件末尾添加
+document.addEventListener('DOMContentLoaded', function() {
+    // 为所有轮播图添加错误处理
+    document.querySelectorAll('.carousel-item img').forEach(img => {
+        img.onerror = function() {
+            // 如果图片加载失败，隐藏图片，只显示渐变背景
+            this.style.display = 'none';
+        };
+    });
+});
