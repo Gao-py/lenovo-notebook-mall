@@ -42,7 +42,7 @@
 
 .carousel-content {
     position: absolute;
-    left: 50px;
+    left: 90px;
     max-width: 500px;
     z-index: 2;
 }
