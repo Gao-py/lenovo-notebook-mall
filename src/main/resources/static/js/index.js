@@ -99,7 +99,7 @@ async function displayProducts(products) {
                     <h3>${p.name}</h3>
                     <p class="model">${p.model}${p.category ? ' | ' + p.category : ''}</p>
                     ${ratingHtml}
-                    <div class="price">¥${p.price}</div>
+                    <div class="price">${p.price}</div>
                     <p class="stock">库存: ${p.stock} | 销量: ${p.sales || 0}</p>
                 </div>
             </div>
