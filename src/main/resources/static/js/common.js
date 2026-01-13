@@ -5,6 +5,27 @@ let loginCaptchaKey = '';
 let regCaptchaKey = '';
 let countdown = 0;
 
+// 需要登录的页面列表
+const PROTECTED_PAGES = [
+    'cart.html',
+    'orders.html',
+    'address.html',
+    'profile.html',
+    'chat.html',
+    'points-mall.html'
+];
+
+// 页面加载时检查是否需要登录
+(function checkPageAccess() {
+    const currentPage = window.location.pathname.split('/').pop();
+    const isProtectedPage = PROTECTED_PAGES.includes(currentPage);
+
+    if (isProtectedPage && !token) {
+        alert('请先登录');
+        window.location.href = 'index.html';
+    }
+})();
+
 function goToCart() {
     if (requireAuth()) {
         location.href = 'cart.html';

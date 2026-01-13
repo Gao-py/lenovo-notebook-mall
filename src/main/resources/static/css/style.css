@@ -19,66 +19,97 @@ body {
     padding: 0 20px;
 }
 
-/* Header */
+/* Header 优化 */
 .header {
     background: linear-gradient(135deg, #e60012 0%, #c00010 100%);
     color: white;
-    padding: 15px 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 0;
+    box-shadow: 0 2px 20px rgba(230, 0, 18, 0.3);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
 }
 
 .header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 15px 20px;
 }
 
 .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header h1::before {
+    content: '🖥️';
     font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 1px;
 }
 
 .header nav {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     align-items: center;
 }
 
 .header nav a, .header nav span {
     color: white;
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    transition: all 0.3s;
+    padding: 10px 18px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 14px;
-    display: flex;
-    align-items: center;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.header nav a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: left 0.3s;
+}
+
+.header nav a:hover::before {
+    left: 0;
 }
 
 .header nav a:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 #userNav {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     align-items: center;
+    margin-left: 15px;
+    padding-left: 15px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Carousel */
+/* Carousel 优化 */
 .carousel {
     position: relative;
     width: 100%;
-    height: 400px;
-    margin: 30px 0;
-    border-radius: 12px;
+    height: 450px;
+    margin: 25px 0;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
 .carousel-inner {
@@ -118,77 +149,87 @@ body {
 }
 
 .carousel-content h2 {
-    font-size: 42px;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+    font-weight: 700;
 }
 
 .carousel-content p {
-    font-size: 18px;
-    margin-bottom: 25px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    font-size: 20px;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0.95;
 }
 
 .carousel-btn {
-    padding: 12px 30px;
+    padding: 14px 36px;
     background: white;
     color: #e60012;
     border: none;
-    border-radius: 25px;
+    border-radius: 30px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .carousel-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .carousel-controls {
     position: absolute;
-    bottom: 20px;
+    bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 12px;
     z-index: 3;
 }
 
 .carousel-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.4);
     cursor: pointer;
     transition: all 0.3s;
+    border: 2px solid transparent;
 }
 
 .carousel-dot.active {
     background: white;
-    width: 30px;
-    border-radius: 6px;
+    width: 35px;
+    border-radius: 8px;
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .carousel-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
     color: white;
-    border: none;
-    width: 50px;
-    height: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
-    font-size: 24px;
+    font-size: 26px;
     cursor: pointer;
     transition: all 0.3s;
     z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-arrow:hover {
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .carousel-arrow.prev {
@@ -199,130 +240,159 @@ body {
     right: 20px;
 }
 
-/* Category Filter */
+/* Category Filter 优化 */
 .category-filter {
     background: white;
-    padding: 20px;
-    margin: 30px 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin: 25px 0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     display: flex;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
     align-items: center;
 }
 
 .category-filter span {
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
+    font-size: 15px;
 }
 
 .category-btn {
-    padding: 8px 20px;
-    background: #f5f5f5;
-    border: 2px solid transparent;
-    border-radius: 20px;
+    padding: 10px 24px;
+    background: #f8f9fa;
+    border: 2px solid #e8e8e8;
+    border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
+    font-weight: 600;
+    color: #666;
 }
 
 .category-btn:hover {
-    background: #e0e0e0;
+    background: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-2px);
 }
 
 .category-btn.active {
     background: linear-gradient(135deg, #e60012 0%, #c00010 100%);
     color: white;
     border-color: #e60012;
+    box-shadow: 0 4px 15px rgba(230, 0, 18, 0.3);
 }
 
-/* Search Bar */
+/* Search Bar 优化 */
 .search-bar {
     background: white;
-    padding: 25px;
-    margin: 30px 0;
-    border-radius: 12px;
+    padding: 28px;
+    margin: 25px 0;
+    border-radius: 16px;
     display: flex;
-    gap: 12px;
+    gap: 15px;
     flex-wrap: wrap;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.search-bar input {
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+.search-bar input,
+.search-bar select {
+    padding: 14px 18px;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
     flex: 1;
-    min-width: 150px;
+    min-width: 160px;
     font-size: 14px;
-    transition: border-color 0.3s;
+    transition: all 0.3s;
+    background: #fafafa;
 }
 
-.search-bar input:focus {
+.search-bar input:focus,
+.search-bar select:focus {
     outline: none;
     border-color: #e60012;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(230, 0, 18, 0.1);
 }
 
 .search-bar button {
-    padding: 12px 24px;
+    padding: 14px 32px;
     background: linear-gradient(135deg, #e60012 0%, #c00010 100%);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(230, 0, 18, 0.3);
 }
 
 .search-bar button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(230,0,18,0.3);
+    box-shadow: 0 6px 20px rgba(230, 0, 18, 0.4);
 }
 
-/* Product List */
+/* Product Card 优化 */
 .product-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
     margin-bottom: 50px;
 }
 
 .product-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    position: relative;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #e60012, #ff6b6b);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+.product-card:hover::before {
+    transform: scaleX(1);
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transform: translateY(-10px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
 .product-card img {
     width: 100%;
-    height: 220px;
+    height: 240px;
     object-fit: cover;
-    transition: transform 0.3s;
+    transition: transform 0.5s;
 }
 
 .product-card:hover img {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .product-card .content {
-    padding: 20px;
+    padding: 24px;
 }
 
 .product-card h3 {
-    font-size: 17px;
-    margin-bottom: 8px;
+    font-size: 18px;
+    margin-bottom: 10px;
     color: #333;
-    font-weight: 600;
+    font-weight: 700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -336,9 +406,17 @@ body {
 
 .product-card .price {
     color: #e60012;
-    font-size: 26px;
-    font-weight: bold;
-    margin: 12px 0;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 15px 0;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.product-card .price::before {
+    content: '¥';
+    font-size: 20px;
 }
 
 .product-card .stock {
@@ -349,20 +427,21 @@ body {
 
 .product-card button {
     width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #ff6700 0%, #e65500 100%);
+    padding: 14px;
+    background: linear-gradient(135deg, #e60012 0%, #c00010 100%);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(230, 0, 18, 0.3);
 }
 
 .product-card button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255,103,0,0.3);
+    box-shadow: 0 6px 20px rgba(230, 0, 18, 0.4);
 }
 
 /* Product Detail */
@@ -1051,6 +1130,38 @@ button {
     display: flex !important;
 }
 
+/* 修改模态框样式，确保居中显示 */
+.auth-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-modal.show {
+    display: flex !important;
+}
+
+.auth-modal .modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    max-width: 450px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+}
+
 /* 图片预览删除按钮 */
 .image-preview .delete-image-btn {
     position: absolute;
@@ -1211,11 +1322,13 @@ button {
     border-radius: 10px;
     border-left: 3px solid #e60012;
     transition: all 0.3s;
+    position: relative;
 }
 
 .comment-item:hover {
     background: #f5f5f5;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transform: translateX(5px);
 }
 
 .comment-header {
@@ -1266,11 +1379,33 @@ button {
     font-size: 13px;
     font-weight: 500;
     transition: color 0.3s;
+    cursor: pointer;
 }
 
 .comment-actions a:hover {
     color: #c00010;
     text-decoration: underline;
+}
+
+/* 评论图片网格 */
+.comment-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.comment-images img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.comment-images img:hover {
+    transform: scale(1.05);
 }
 
 .reply-box {
@@ -1445,6 +1580,79 @@ button {
     color: #e4393c;
 }
 
+/* 添加订单状态时间轴 */
+.order-timeline {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.timeline-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.timeline-step::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.timeline-step:first-child::before {
+    left: 50%;
+    width: 50%;
+}
+
+.timeline-step:last-child::before {
+    width: 50%;
+}
+
+.timeline-icon {
+    width: 30px;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.timeline-step.active .timeline-icon {
+    background: #4CAF50;
+    color: white;
+}
+
+.timeline-step.completed .timeline-icon {
+    background: #4CAF50;
+    color: white;
+}
+
+.timeline-step.completed::before {
+    background: #4CAF50;
+}
+
+.timeline-label {
+    font-size: 12px;
+    color: #666;
+}
+
+.timeline-step.active .timeline-label {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
 /* 评分样式 */
 .rating-section {
     margin-top: 15px;
@@ -1592,4 +1800,322 @@ button {
     font-size: 26px;
     font-weight: 600;
     text-align: center;
+}
+
+/* 添加响应式断点和动画 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .header nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .product-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .product-detail {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-panel {
+        grid-template-columns: 1fr;
+    }
+
+    /* 移动端导航菜单 */
+    .header nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        padding: 80px 20px 20px;
+        box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+        transition: right 0.3s ease;
+        z-index: 999;
+    }
+
+    .header nav.active {
+        right: 0;
+    }
+
+    .menu-toggle {
+        display: block;
+        width: 30px;
+        height: 25px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .menu-toggle span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background: white;
+        position: absolute;
+        transition: all 0.3s;
+    }
+
+    .menu-toggle span:nth-child(1) {
+        top: 0;
+    }
+
+    .menu-toggle span:nth-child(2) {
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .menu-toggle span:nth-child(3) {
+        bottom: 0;
+    }
+
+    .menu-toggle.active span:nth-child(1) {
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .menu-toggle.active span:nth-child(3) {
+        bottom: 50%;
+        transform: translateY(50%) rotate(-45deg);
+    }
+}
+
+/* 添加平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 优化按钮悬停效果 */
+button, .btn-primary, .btn-secondary {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+button::before, .btn-primary::before, .btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before, .btn-primary:hover::before, .btn-secondary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-card, .order-item, .comment-item {
+    animation: fadeIn 0.5s ease;
+}
+
+/* 优化表单输入框 */
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #e60012;
+    box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.1);
+}
+
+/* 添加骨架屏效果 */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* 优化滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 添加工具提示样式 */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* 优化卡片阴影 */
+.product-card, .order-item, .comment-item, .coupon-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.product-card:hover, .coupon-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+
+/* 添加徽章样式 */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    background: #e60012;
+    color: white;
+}
+
+.badge.success {
+    background: #4CAF50;
+}
+
+.badge.warning {
+    background: #FF9800;
+}
+
+.badge.info {
+    background: #2196F3;
+}
+
+/* 优化空状态 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state-text {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.empty-state-hint {
+    font-size: 14px;
+    color: #999;
+}
+
+/* 添加加载指示器 */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(230, 0, 18, 0.3);
+    border-radius: 50%;
+    border-top-color: #e60012;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 优化通知样式 */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification.success {
+    border-left: 4px solid #4CAF50;
+}
+
+.notification.error {
+    border-left: 4px solid #f44336;
+}
+
+.notification.warning {
+    border-left: 4px solid #FF9800;
+}
+
+.notification.info {
+    border-left: 4px solid #2196F3;
 }

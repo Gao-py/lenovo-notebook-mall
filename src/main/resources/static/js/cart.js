@@ -1,3 +1,9 @@
+if (!token) {
+    alert('请先登录');
+    location.href = 'index.html';
+    throw new Error('未登录');
+}
+
 if (!requireAuth()) {
     location.href = 'index.html';
 }

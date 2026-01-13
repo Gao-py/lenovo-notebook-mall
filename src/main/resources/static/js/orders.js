@@ -1,3 +1,9 @@
+// 在文件开头修改
+const token = localStorage.getItem('token');
+if (!token) {
+    throw new Error('未登录');
+}
+
 async function loadOrders() {
     const token = localStorage.getItem('token');
     if (!token) {

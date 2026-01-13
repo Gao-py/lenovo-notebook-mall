@@ -96,8 +96,15 @@ async function sendMessage() {
 
 async function init() {
     try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('请先登录');
+            location.href = 'index.html';
+            return;
+        }
+
         const profile = await fetch('/api/profile', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
         }).then(r => r.json());
 
         if (!profile.success || !profile.data) {
@@ -122,7 +129,8 @@ async function init() {
         }
     } catch (error) {
         console.error('初始化失败:', error);
-        alert('加载失败，请刷新页面重试');
+        alert('加载失败，请重新登录');
+        location.href = 'index.html';
     }
 }
 

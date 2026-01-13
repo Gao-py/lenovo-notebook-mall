@@ -257,6 +257,14 @@ function displayMyCoupons(coupons) {
     }).join('');
 }
 
+// 登录检查
+const token = localStorage.getItem('token');
+if (!token) {
+    alert('请先登录后查看积分商城');
+    location.href = 'index.html';
+    throw new Error('未登录');
+}
+
 async function init() {
     await loadUserPoints();
     await loadCoupons();
