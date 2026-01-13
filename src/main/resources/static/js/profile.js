@@ -2,15 +2,7 @@ if (!requireAuth()) {
     location.href = 'index.html';
 }
 
-// const token = localStorage.getItem('token');
-// if (!token) {
-//     alert('请先登录');
-//     location.href = 'index.html';
-//     throw new Error('未登录');
-// }
-
 let originalProfile = null;
-
 let avatarChanged = false;
 
 async function loadProfile() {
@@ -30,13 +22,11 @@ async function loadProfile() {
         }
 
         const data = await res.json();
-        console.log('Profile API response:', data); // 调试信息
 
         if (data.success) {
             const user = data.data;
             originalProfile = { ...user };
 
-            // 填充表单数据
             document.getElementById('username').value = user.username || '';
             document.getElementById('nickname').value = user.nickname || '';
             document.getElementById('signature').value = user.signature || '';
@@ -44,7 +34,6 @@ async function loadProfile() {
             document.getElementById('phone').value = user.phone || '';
             document.getElementById('gender').value = user.gender || '';
 
-            // 处理生日日期格式
             if (user.birthday) {
                 const birthday = new Date(user.birthday);
                 document.getElementById('birthday').value = birthday.toISOString().split('T')[0];
@@ -52,7 +41,6 @@ async function loadProfile() {
                 document.getElementById('birthday').value = '';
             }
 
-            // 显示头像
             if (user.avatar) {
                 document.getElementById('avatarPreview').src = user.avatar;
                 document.getElementById('avatarPreview').style.display = 'block';
@@ -62,13 +50,11 @@ async function loadProfile() {
                 document.getElementById('avatarPlaceholder').style.display = 'flex';
             }
 
-            // 更新VIP信息到个人信息区域
             updateVipInfoInProfile(user);
         } else {
             throw new Error(data.message || '加载个人信息失败');
         }
 
-        // 加载VIP详细信息
         await loadVipInfo();
         initAvatarUpload();
         initFormValidation();
@@ -79,7 +65,6 @@ async function loadProfile() {
 }
 
 function updateVipInfoInProfile(user) {
-    // 更新头像旁边的VIP等级
     const vipLevel = user.vipLevel || 0;
     const vipBadge = document.getElementById('vipBadge');
     if (vipBadge) {
@@ -87,28 +72,24 @@ function updateVipInfoInProfile(user) {
         vipBadge.style.display = vipLevel > 0 ? 'flex' : 'none';
     }
 
-    // 更新积分信息
     const vipPoints = user.vipPoints || 0;
     const pointsElement = document.getElementById('userPoints');
     if (pointsElement) {
         pointsElement.textContent = vipPoints.toLocaleString();
     }
 
-    // 更新累计消费
     const totalSpent = user.totalSpent || 0;
     const spentElement = document.getElementById('totalSpent');
     if (spentElement) {
         spentElement.textContent = totalSpent.toFixed(2);
     }
 
-    // 更新用户名显示
     const usernameDisplay = document.getElementById('usernameDisplay');
     if (usernameDisplay) {
         usernameDisplay.textContent = user.nickname || user.username;
     }
 }
 
-// 修改后的 loadVipInfo 函数部分
 async function loadVipInfo() {
     try {
         const token = localStorage.getItem('token');
@@ -125,11 +106,9 @@ async function loadVipInfo() {
         if (data.success) {
             const vip = data.data;
 
-            // 更新VIP折扣显示
             const vipDiscountEl = document.getElementById('vipDiscount');
             if (vipDiscountEl) {
                 if (vip.vipLevel > 0 && vip.discount) {
-                    // 将折扣转换为百分比格式：如0.85 -> -15%
                     const discountPercent = Math.round((1 - vip.discount) * 100);
                     vipDiscountEl.textContent = `-${discountPercent}%`;
                 } else {
@@ -137,22 +116,45 @@ async function loadVipInfo() {
                 }
             }
 
-            // 更新升级进度提示
-            const nextDiscountEl = document.getElementById('nextDiscount');
-            if (nextDiscountEl) {
-                nextDiscountEl.textContent = getNextLevelDiscount(vip.vipLevel || 0);
+            const currentExp = vip.vipExperience || 0;
+            const currentLevel = vip.vipLevel || 0;
+            const prevLevelExp = getPrevLevelExp(currentLevel);
+            const nextLevelExp = vip.nextLevelExp;
+
+            if (nextLevelExp) {
+                const expNeeded = nextLevelExp - prevLevelExp;
+                const expGained = currentExp - prevLevelExp;
+                const progressPercent = Math.min(100, Math.max(0, (expGained / expNeeded) * 100));
+
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = progressPercent.toFixed(1) + '%';
+                }
+
+                const remainingExp = nextLevelExp - currentExp;
+                const nextLevelNum = document.getElementById('nextLevelNum');
+                const remainingExpEl = document.getElementById('remainingExp');
+                if (nextLevelNum) nextLevelNum.textContent = currentLevel + 1;
+                if (remainingExpEl) remainingExpEl.textContent = remainingExp.toLocaleString();
+
+                const nextLevelTip = document.getElementById('nextLevelTip');
+                const nextDiscountEl = document.getElementById('nextDiscount');
+                if (nextLevelTip) nextLevelTip.textContent = currentLevel + 1;
+                if (nextDiscountEl) nextDiscountEl.textContent = getNextLevelDiscount(currentLevel);
+            } else {
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) progressFill.style.width = '100%';
+
+                const progressText = document.getElementById('progressText');
+                if (progressText) progressText.textContent = '已达到最高等级';
+
+                const progressTip = document.getElementById('progressTip');
+                if (progressTip) progressTip.textContent = '恭喜您已达到最高VIP等级！';
             }
         }
     } catch (error) {
         console.error('加载VIP信息失败:', error);
     }
-}
-
-// 修改后的 getNextLevelDiscount 函数
-function getNextLevelDiscount(currentLevel) {
-    // VIP等级对应的折扣百分比（负值表示优惠）
-    const discounts = ['-10%', '-10%', '-10%', '-12%', '-15%', '-18%', '-20%'];
-    return discounts[currentLevel + 1] || '-20%';
 }
 
 function getPrevLevelExp(currentLevel) {
@@ -161,15 +163,13 @@ function getPrevLevelExp(currentLevel) {
 }
 
 function getNextLevelDiscount(currentLevel) {
-    // VIP等级对应的折扣百分比（负值表示优惠）
     const discounts = ['-10%', '-10%', '-10%', '-12%', '-15%', '-18%', '-20%'];
     return discounts[currentLevel + 1] || '-20%';
 }
 
 function initAvatarUpload() {
     const dropZone = document.getElementById('avatarDropZone');
-    
-    // 添加空值检查
+
     if (!dropZone) {
         console.warn('avatarDropZone 元素不存在');
         return;
@@ -181,19 +181,19 @@ function initAvatarUpload() {
             e.stopPropagation();
         }, false);
     });
-    
+
     ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, function() {
             dropZone.classList.add('drag-over');
         }, false);
     });
-    
+
     ['dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, function() {
             dropZone.classList.remove('drag-over');
         }, false);
     });
-    
+
     dropZone.addEventListener('drop', function(e) {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
@@ -210,7 +210,6 @@ function handleAvatarSelect(event) {
 }
 
 function handleAvatarFile(file) {
-    // 验证文件类型和大小
     if (!file.type.match('image.*')) {
         showToast('请选择图片文件', 'error');
         return;
@@ -222,19 +221,55 @@ function handleAvatarFile(file) {
     }
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         document.getElementById('avatarPreview').src = e.target.result;
         document.getElementById('avatarPreview').style.display = 'block';
         document.getElementById('avatarPlaceholder').style.display = 'none';
-        avatarChanged = true;
-        showToast('头像已更新，请保存修改', 'success');
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('请先登录', 'error');
+                return;
+            }
+
+            const payload = {
+                avatar: e.target.result
+            };
+
+            const res = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                showToast('头像更新成功', 'success');
+                avatarChanged = false;
+                await loadProfile();
+            } else {
+                throw new Error(data.message || '保存失败');
+            }
+        } catch (error) {
+            showToast('头像保存失败: ' + error.message, 'error');
+            if (originalProfile && originalProfile.avatar) {
+                document.getElementById('avatarPreview').src = originalProfile.avatar;
+            } else {
+                document.getElementById('avatarPreview').style.display = 'none';
+                document.getElementById('avatarPlaceholder').style.display = 'flex';
+            }
+        }
     };
     reader.readAsDataURL(file);
 }
 
 function initFormValidation() {
     const inputs = document.querySelectorAll('#nickname, #signature, #phone, #gender, #birthday');
-    
+
     inputs.forEach(input => {
         if (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA' || input.tagName === 'SELECT') {
             input.addEventListener('input', checkFormChanges);
@@ -259,10 +294,8 @@ function checkFormChanges() {
 function checkIfProfileChanged() {
     if (!originalProfile) return false;
 
-    // 检查头像是否改变
     if (avatarChanged) return true;
 
-    // 检查表单字段是否改变
     const currentData = {
         nickname: document.getElementById('nickname').value,
         signature: document.getElementById('signature').value,
@@ -278,7 +311,7 @@ function checkIfProfileChanged() {
         gender: originalProfile.gender || '',
         birthday: originalProfile.birthday ? new Date(originalProfile.birthday).toISOString().split('T')[0] : ''
     };
-    
+
     return JSON.stringify(currentData) !== JSON.stringify(originalData);
 }
 
@@ -302,12 +335,6 @@ async function saveProfile() {
             birthday: document.getElementById('birthday').value || null
         };
 
-        // 添加头像数据
-        if (avatarChanged) {
-            payload.avatar = document.getElementById('avatarPreview').src;
-        }
-
-        // 验证必填字段
         if (!payload.nickname) {
             throw new Error('昵称不能为空');
         }
@@ -329,7 +356,8 @@ async function saveProfile() {
         if (data.success) {
             showToast('保存成功', 'success');
             avatarChanged = false;
-            await loadProfile(); // 重新加载数据
+            // 重新加载数据以刷新页面
+            await loadProfile();
         } else {
             throw new Error(data.message || '保存失败');
         }
@@ -347,43 +375,10 @@ function showVipDetails() {
     document.getElementById('vipModal').style.display = 'flex';
 }
 
-// function changeEmail() {
-//     showToast('修改邮箱功能开发中', 'info');
-// }
-//
-// function verifyPhone() {
-//     const phone = document.getElementById('phone').value;
-//     if (!phone) {
-//         showToast('请先输入手机号', 'warning');
-//         return;
-//     }
-//
-//     if (!/^1[3-9]\d{9}$/.test(phone)) {
-//         showToast('手机号格式不正确', 'error');
-//         return;
-//     }
-//
-//     showToast('验证码已发送到您的手机', 'success');
-// }
-//
-// function changePassword() {
-//     showToast('修改密码功能开发中', 'info');
-// }
-//
-// function manageDevices() {
-//     showToast('设备管理功能开发中', 'info');
-// }
-//
-// function viewLoginHistory() {
-//     showToast('登录记录功能开发中', 'info');
-// }
-
 function showToast(message, type = 'info') {
-    // 移除现有的toast
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
 
-    // 创建新的toast
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
@@ -393,7 +388,6 @@ function showToast(message, type = 'info') {
         </div>
     `;
 
-    // 添加样式
     toast.style.cssText = `
         position: fixed;
         top: 20px;
@@ -409,7 +403,6 @@ function showToast(message, type = 'info') {
 
     document.body.appendChild(toast);
 
-    // 3秒后自动移除
     setTimeout(() => {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
@@ -425,11 +418,9 @@ function getToastIcon(type) {
     }
 }
 
-// 页面加载时初始化
 document.addEventListener('DOMContentLoaded', function() {
     loadProfile();
 
-    // 添加CSS动画
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideIn {
