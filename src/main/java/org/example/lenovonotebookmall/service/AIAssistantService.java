@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -181,37 +183,55 @@ public class AIAssistantService {
     private String enrichResponseWithLinks(String aiResponse, List<Product> products) {
         String result = aiResponse;
 
+        // 记录已处理的商品ID，避免重复替换
+        Set<Long> linkedProductIds = new HashSet<>();
+
         for (Product p : products) {
-            // 1. 匹配标准格式：商品名称(ID:数字)
-            String pattern1 = p.getName() + "\\(ID:" + p.getId() + "\\)";
-            String replacement = String.format(
-                    "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>%s</a>",
-                    p.getId(), p.getName()
-            );
-            result = result.replaceAll(pattern1, replacement);
+            String productName = p.getName();
+            Long productId = p.getId();
 
-            // 2. 匹配格式：【商品名称】(ID:数字)
-            String pattern2 = "【" + p.getName() + "】\\(ID:" + p.getId() + "\\)";
-            String replacement2 = String.format(
-                    "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>【%s】</a>",
-                    p.getId(), p.getName()
-            );
-            result = result.replaceAll(pattern2, replacement2);
+            // 1. 匹配格式：【商品名称】(ID:数字)
+            String pattern1 = "【" + Pattern.quote(productName) + "】\\s*\\(ID:" + productId + "\\)";
+            if (Pattern.compile(pattern1).matcher(result).find()) {
+                String replacement = String.format(
+                        "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>【%s】</a>",
+                        productId, productName
+                );
+                result = result.replaceAll(pattern1, Matcher.quoteReplacement(replacement));
+                linkedProductIds.add(productId);
+                continue;
+            }
 
-            // 3. 匹配纯商品名称（如果还没有被转换成链接）
-            // 使用负向前瞻和负向后顾，确保不会重复转换已经是链接的文本
-            String pattern3 = "(?<!href='/product\\.html\\?id=\\d{1,5}'>)(?<!【)" +
-                    java.util.regex.Pattern.quote(p.getName()) +
-                    "(?!<\\/a>)(?!】)";
+            // 2. 匹配格式：商品名称(ID:数字)
+            String pattern2 = Pattern.quote(productName) + "\\s*\\(ID:" + productId + "\\)";
+            if (Pattern.compile(pattern2).matcher(result).find()) {
+                String replacement = String.format(
+                        "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>%s</a>",
+                        productId, productName
+                );
+                result = result.replaceAll(pattern2, Matcher.quoteReplacement(replacement));
+                linkedProductIds.add(productId);
+                continue;
+            }
 
-            // 检查是否已经包含这个商品的链接
-            if (!result.contains("href='/product.html?id=" + p.getId() + "'")) {
-                result = result.replaceFirst(pattern3, replacement);
+            // 3. 匹配纯商品名称（仅当该商品还没有被链接时）
+            if (!linkedProductIds.contains(productId) && result.contains(productName)) {
+                // 检查是否已经在链接标签内
+                String checkPattern = "<a[^>]*>" + Pattern.quote(productName) + "</a>";
+                if (!Pattern.compile(checkPattern).matcher(result).find()) {
+                    String replacement = String.format(
+                            "<a href='/product.html?id=%d' style='color: #e60012; font-weight: 600; text-decoration: none;'>%s</a>",
+                            productId, productName
+                    );
+                    // 只替换第一个匹配，避免重复
+                    result = result.replaceFirst(Pattern.quote(productName), Matcher.quoteReplacement(replacement));
+                }
             }
         }
 
         return result;
     }
+
 
     private String fallbackResponse(String userMessage) {
         List<Product> products = productRepository.findAll();
